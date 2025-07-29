@@ -1,6 +1,7 @@
 services:
   mailhog:
     image: mailhog/mailhog
+    restart: no
     ports:
       - '1025:1025'
       - '8025:8025'
@@ -17,6 +18,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
+    restart: no
     environment:
       PMA_HOST: mysql
     ports:
