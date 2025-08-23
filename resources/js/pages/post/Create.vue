@@ -1,201 +1,179 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
-import { Head, useForm, router } from '@inertiajs/vue3';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { X } from 'lucide-vue-next';
+import DashboardLayout from '@/layouts/DashboardLayout.vue';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Create a Post',
-        href: route('post.create'),
-    },
-];
+import { useToast } from "vue-toastification";
 
 interface Post {
-    id: string;
-    title: string;
-    content: string;
-    tags: string[] | null;
-    created_at: string;
-    creator: {
-        id: number;
-        name: string;
-        username: string;
-        profile_photo_path: string | null;
-    };
+  id: string;
+  title: string;
+  content: string;
+  tags: string[] | null;
+  created_at: string;
+  creator: {
+    id: number;
+    name: string;
+    username: string;
+    profile_photo_path: string | null;
+  };
 }
 
 interface Props {
-    post: Post;
+  post?: Post;
 }
 
 const { post } = defineProps<Props>();
+const toast = useToast();
 
 // Form setup
 const form = useForm({
-    title: post.title || '',
-    content: post.content || '',
-    tags: post.tags || [] as string[],
+  title: post?.title || '',
+  content: post?.content || '',
+  tags: post?.tags || ([] as string[]),
 });
 
 const newTag = ref('');
 const isSubmitting = ref(false);
 
 const addTag = () => {
-    if (newTag.value.trim() && !form.tags.includes(newTag.value.trim())) {
-        form.tags.push(newTag.value.trim());
-        newTag.value = '';
-    }
+  if (newTag.value.trim() && !form.tags.includes(newTag.value.trim())) {
+    form.tags.push(newTag.value.trim());
+    newTag.value = '';
+  }
 };
 
 const removeTag = (index: number) => {
-    form.tags.splice(index, 1);
+  form.tags.splice(index, 1);
 };
 
 // Form submission
 const submitPost = () => {
-    isSubmitting.value = true;
-    if(post) {
-        // update the post
-        form.put(route('post.update', {post: post.id}), {
-            onSuccess: () => {
-                // Reset form after successful submission
-                // form.reset();
-            },
-            onError: () => {
-                isSubmitting.value = false;
-            },
-            onFinish: () => {
-                isSubmitting.value = false;
-            },
-            only: ['post']
-        });
-    } else {
-        // create new post
-        form.post(route('post.store'), {
-            onSuccess: () => {
-                // Reset form after successful submission
-                form.reset();
-            },
-            onError: () => {
-                isSubmitting.value = false;
-            },
-            onFinish: () => {
-                isSubmitting.value = false;
-            }
-        });
-    }
+  isSubmitting.value = true;
+  if (post) {
+    // update the post
+    form.put(route('post.update', { post: post.id }), {
+      onSuccess: () => {
+        toast.success('Post updated successfully!');
+      },
+      onError: () => {
+        toast.error('Post could not be updated');
+        isSubmitting.value = false;
+      },
+      onFinish: () => {
+        isSubmitting.value = false;
+      },
+      only: ['post'],
+    });
+  } else {
+    // create new post
+    form.post(route('post.store'), {
+      onSuccess: () => {
+        // Reset form after successful submission
+        toast.success('Post created successfully!');
+        form.reset();
+      },
+      onError: () => {
+        toast.success('Post could not be created');
+        isSubmitting.value = false;
+      },
+      onFinish: () => {
+        isSubmitting.value = false;
+      },
+    });
+  }
 };
 </script>
 
 <template>
-    <Head title="Create a Post" />
+  <Head title="Create a Post" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
-            <Card class="w-full max-w-2xl mx-auto">
-                <CardHeader>
-                    <CardTitle>
-                        {{ post ? 'Edit Post' : 'Create New Post' }}
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <form @submit.prevent="submitPost" class="space-y-6">
-                        <!-- Post Title -->
-                        <div class="space-y-2">
-                            <Label for="title">Post Title *</Label>
-                            <Input
-                                id="title"
-                                v-model="form.title"
-                                placeholder="Enter a title for your post"
-                                :disabled="isSubmitting"
-                                required
-                            />
-                            <p v-if="form.errors.title" class="text-sm text-red-500">{{ form.errors.title }}</p>
-                        </div>
+  <DashboardLayout>
+    <v-card>
+      <v-card-title class="text-h5 font-weight-bold">
+        {{ post ? 'Edit Post' : 'Create New Post' }}
+      </v-card-title>
+      <v-card-subtitle> Fill out the form to {{ post ? 'edit' : 'create' }} your post. </v-card-subtitle>
 
-                        <!-- Tags Section -->
-                        <div class="space-y-2">
-                            <Label for="tags">Tags</Label>
-                            <div class="flex gap-2">
-                                <Input
-                                    id="tags"
-                                    v-model="newTag"
-                                    placeholder="Add a tag and press Enter"
-                                    :disabled="isSubmitting"
-                                    @keyup.enter="addTag"
-                                />
-                                <Button type="button" @click="addTag" variant="outline" :disabled="isSubmitting">
-                                    Add
-                                </Button>
-                            </div>
+      <v-card-text>
+        <v-form @submit.prevent="submitPost">
+          <v-container>
+            <!-- Post Title -->
+            <v-row>
+              <v-col cols="12">
+                <v-text-field
+                  v-model="form.title"
+                  label="Post Title"
+                  placeholder="Enter a title for your post"
+                  :disabled="isSubmitting"
+                  required
+                ></v-text-field>
+                <div v-if="form.errors.title" class="text-caption text-error">
+                  {{ form.errors.title }}
+                </div>
+              </v-col>
+            </v-row>
 
-                            <!-- Display added tags -->
-                            <div v-if="form.tags.length > 0" class="flex flex-wrap gap-2 mt-2">
-                                <Badge
-                                    v-for="(tag, index) in form.tags"
-                                    :key="index"
-                                    variant="secondary"
-                                    class="gap-1"
-                                >
-                                    {{ tag }}
-                                    <button
-                                        type="button"
-                                        @click="removeTag(index)"
-                                        class="ml-1 hover:bg-secondary-foreground/10 rounded-full p-0.5"
-                                        :disabled="isSubmitting"
-                                    >
-                                        <X class="h-3 w-3" />
-                                    </button>
-                                </Badge>
-                            </div>
-                            <p v-if="form.errors.tags" class="text-sm text-red-500">{{ form.errors.tags }}</p>
-                        </div>
+            <!-- Tags Section -->
+            <v-row>
+              <v-col cols="12">
+                <v-label>Tags</v-label>
+                <div class="d-flex align-center mt-2">
+                  <v-text-field
+                    v-model="newTag"
+                    placeholder="Add a tag and press Enter"
+                    :disabled="isSubmitting"
+                    @keyup.enter="addTag"
+                    density="compact"
+                    hide-details
+                    single-line
+                    class="mr-2"
+                  ></v-text-field>
+                  <v-btn type="button" @click="addTag" variant="tonal" :disabled="isSubmitting"> Add </v-btn>
+                </div>
 
-                        <!-- Post Content -->
-                        <div class="space-y-2">
-                            <Label for="content">Post Content *</Label>
-                            <Textarea
-                                id="content"
-                                v-model="form.content"
-                                placeholder="Write your detailed post here..."
-                                :rows="8"
-                                :disabled="isSubmitting"
-                                required
-                            />
-                            <p v-if="form.errors.content" class="text-sm text-red-500">{{ form.errors.content }}</p>
-                        </div>
+                <!-- Display added tags -->
+                <div v-if="form.tags.length > 0" class="d-flex ga-2 mt-4 flex-wrap">
+                  <v-chip v-for="(tag, index) in form.tags" :key="index" closable variant="tonal" @click:close="removeTag(index)">
+                    {{ tag }}
+                  </v-chip>
+                </div>
+                <div v-if="form.errors.tags" class="text-caption text-error">
+                  {{ form.errors.tags }}
+                </div>
+              </v-col>
+            </v-row>
 
-                        <!-- Form Actions -->
-                        <div class="flex justify-end gap-3 pt-4">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                @click="router.visit(route('dashboard'))"
-                                :disabled="isSubmitting"
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                type="submit"
-                                :disabled="isSubmitting || !form.title || !form.content"
-                            >
-                                <span v-if="isSubmitting">{{ post ? 'Updating...' : 'Creating...' }}</span>
-                                <span v-else>
-                                    {{ post ? 'Update' : 'Create' }}
-                                </span>
-                            </Button>
-                        </div>
-                    </form>
-                </CardContent>
-            </Card>
-        </div>
-    </AppLayout>
+            <!-- Post Content -->
+            <v-row>
+              <v-col cols="12">
+                <v-textarea
+                  v-model="form.content"
+                  label="Post Content"
+                  placeholder="Write your detailed post here..."
+                  :rows="8"
+                  :disabled="isSubmitting"
+                  required
+                ></v-textarea>
+                <div v-if="form.errors.content" class="text-caption text-error">
+                  {{ form.errors.content }}
+                </div>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-form>
+      </v-card-text>
+
+      <v-card-actions class="d-flex pa-4 justify-end gap-3">
+        <v-btn type="button" color="error" variant="outlined" @click="router.visit(route('dashboard'))" :disabled="isSubmitting"> Cancel </v-btn>
+        <v-btn type="submit" color="primary" variant="flat" @click="submitPost" :disabled="isSubmitting || !form.title || !form.content">
+          <span v-if="isSubmitting">
+            {{ post ? 'Updating...' : 'Creating...' }}
+          </span>
+          <span v-else>
+            {{ post ? 'Update' : 'Create' }}
+          </span>
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </DashboardLayout>
 </template>

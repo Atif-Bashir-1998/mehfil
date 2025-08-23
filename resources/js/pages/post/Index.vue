@@ -1,143 +1,89 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import DashboardLayout from '@/layouts/DashboardLayout.vue';
+import { Head, router } from '@inertiajs/vue3';
 import dayjs from 'dayjs';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Posts',
-        href: route('post.index'),
-    },
-];
-
 interface Post {
-    id: string;
-    title: string;
-    content: string;
-    tags: string[] | null;
-    created_at: string;
-    creator: {
-        id: number;
-        name: string;
-        username: string;
-        profile_photo_path: string | null;
-    };
+  id: string;
+  title: string;
+  content: string;
+  tags: string[] | null;
+  created_at: string;
+  creator: {
+    id: number;
+    name: string;
+    username: string;
+    profile_photo_path: string | null;
+  };
 }
 
 interface Props {
-    posts: {
-        data: Post[];
-        links: any[];
-        meta: any;
-    };
+  posts: {
+    data: Post[];
+    links: any[];
+    meta: any;
+  };
 }
 
 const props = defineProps<Props>();
 
 const deletePost = (postId: string) => {
-    if (confirm('Are you sure you want to delete this post?')) {
-        router.delete(route('post.destroy', postId), {
-            preserveScroll: true,
-        });
-    }
+  if (confirm('Are you sure you want to delete this post?')) {
+    router.delete(route('post.destroy', postId), {
+      preserveScroll: true,
+    });
+  }
 };
 </script>
 
 <template>
-    <Head title="Posts" />
+  <Head title="Posts" />
 
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
-            <div class="flex justify-between items-center">
-                <h1 class="text-2xl font-bold">Latest Posts</h1>
-                <Button as-child>
-                    <Link :href="route('post.create')">
-                        Create New Post
-                    </Link>
-                </Button>
-            </div>
+  <DashboardLayout>
+    <v-row class="align-center mb-4">
+      <v-col cols="12" sm="6">
+        <h1 class="text-h4 font-weight-bold">Latest Posts</h1>
+      </v-col>
+      <v-col cols="12" sm="6" class="text-sm-right">
+        <v-btn color="primary" :href="route('post.create')"> Create New Post </v-btn>
+      </v-col>
+    </v-row>
 
-            <div class="grid gap-4">
-                <Card v-for="post in posts.data" :key="post.id">
-                    <CardHeader>
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <CardTitle class="text-xl">
-                                    <Link :href="route('post.show', post.id)" class="hover:underline">
-                                        {{ post.title }}
-                                    </Link>
-                                </CardTitle>
-                                <p class="text-sm text-muted-foreground mt-1">
-                                    by {{ post.creator.name }} • {{ dayjs(post.created_at).format('hh:mm A, d MMM YYYY') }}
-                                </p>
-                            </div>
-                            <div class="flex gap-2" v-if="$page.props.auth.user?.id === post.creator.id">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    as-child
-                                >
-                                    <Link :href="route('post.edit', post.id)">
-                                        Edit
-                                    </Link>
-                                </Button>
-                                <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    @click="deletePost(post.id)"
-                                >
-                                    Delete
-                                </Button>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div class="prose max-w-none mb-4">
-                            <p>{{ post.content.substring(0, 200) }}{{ post.content.length > 200 ? '...' : '' }}</p>
-                        </div>
-
-                        <div v-if="post.tags && post.tags.length > 0" class="flex flex-wrap gap-2">
-                            <Badge
-                                v-for="(tag, index) in post.tags"
-                                :key="index"
-                                variant="secondary"
-                            >
-                                {{ tag }}
-                            </Badge>
-                        </div>
-
-                        <div class="mt-4">
-                            <Button variant="ghost" as-child>
-                                <Link :href="route('post.show', post.id)">
-                                    Read More
-                                </Link>
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <!-- Pagination -->
-            <!-- <div v-if="posts.meta.last_page > 1" class="flex justify-center mt-6">
-                <div class="flex gap-1">
-                    <Button
-                        v-for="link in posts.links"
-                        :key="link.label"
-                        :variant="link.active ? 'default' : 'outline'"
-                        :disabled="!link.url || link.active"
-                        size="sm"
-                        @click="link.url && router.visit(link.url)"
-                    >
-                        <span v-if="link.label === '&laquo; Previous'">Previous</span>
-                        <span v-else-if="link.label === '&raquo; Next'">Next</span>
-                        <span v-else v-html="link.label"></span>
-                    </Button>
+    <v-row>
+      <v-col v-for="post in posts.data" :key="post.id" cols="12">
+        <v-card class="d-flex flex-column pa-4 h-100">
+          <v-card-title class="d-flex justify-space-between align-start pa-0 pb-2">
+            <div>
+              <router-link :to="{ name: 'post.show', params: { id: post.id } }" class="text-decoration-none">
+                <div class="text-h6 font-weight-bold text-primary">
+                  {{ post.title }}
                 </div>
-            </div> -->
-        </div>
-    </AppLayout>
+              </router-link>
+              <div class="text-subtitle-2 text-medium-emphasis mt-1">
+                by {{ post.creator.name }} • {{ dayjs(post.created_at).format('hh:mm A, d MMM YYYY') }}
+              </div>
+            </div>
+          </v-card-title>
+
+          <v-card-text class="pa-0 text-body-1 text-truncate-3-lines py-4">
+            <p>{{ post.content.substring(0, 200) }}{{ post.content.length > 200 ? '...' : '' }}</p>
+          </v-card-text>
+
+          <div v-if="post.tags && post.tags.length > 0" class="d-flex ga-2 mt-auto flex-wrap">
+            <v-chip v-for="(tag, index) in post.tags" :key="index" size="small" label>
+              {{ tag }}
+            </v-chip>
+          </div>
+
+          <v-card-actions class="pa-0 pt-4">
+            <v-btn variant="text" size="small" :href="route('post.show', post.id)"> Read More </v-btn>
+            <div v-if="$page.props.auth.user?.id === post.creator.id" class="d-flex ga-2 justify-end">
+              <v-btn variant="outlined" size="small" :href="route('post.edit', post.id)"> Edit </v-btn>
+              <v-btn color="red-darken-2" variant="flat" size="small" @click="deletePost(post.id)"> Delete </v-btn>
+            </div>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+  </DashboardLayout>
 </template>
