@@ -9,9 +9,23 @@ import { initializeTheme } from './composables/useAppearance';
 
 // Vuetify
 import 'vuetify/styles'
+import '@mdi/font/css/materialdesignicons.css'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+
+// vue-toastification
+import Toast, { POSITION } from "vue-toastification";
+import "vue-toastification/dist/index.css";
+import { ToastOptions } from 'vue-toastification/dist/types/types';
+
+const toastOptions: ToastOptions = {
+  position: POSITION.TOP_RIGHT,
+  timeout: 3000 , // 3 seconds
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: false
+};
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -19,11 +33,18 @@ const vuetify = createVuetify({
   components,
   directives,
   theme: {
-    defaultTheme: 'dark',
+    defaultTheme: 'light',
     themes: {
       dark: {
         colors: {
-          primary: '#43ec83'
+          primary: '#43ec83',
+          error: '#D32F2F'
+        }
+      },
+      light: {
+        colors: {
+          primary: '#43ec83',
+          error: '#D32F2F'
         }
       }
     }
@@ -38,6 +59,7 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue)
             .use(vuetify)
+            .use(Toast, toastOptions)
             .mount(el);
     },
     progress: {
