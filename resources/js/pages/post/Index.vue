@@ -1,7 +1,7 @@
 <script setup>
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import dayjs from 'dayjs';
+import { Head, router } from '@inertiajs/vue3';
+import PostCard from '@/components/PostCard.vue';
 
 const { posts } = defineProps({
   posts: {
@@ -9,14 +9,6 @@ const { posts } = defineProps({
     required: true
   }
 });
-
-const deletePost = (postId) => {
-  if (confirm('Are you sure you want to delete this post?')) {
-    router.delete(route('post.destroy', postId), {
-      preserveScroll: true,
-    });
-  }
-};
 </script>
 
 <template>
@@ -33,7 +25,7 @@ const deletePost = (postId) => {
     </v-row>
 
     <v-row>
-      <v-col v-for="post in posts.data" :key="post.id" cols="12">
+      <!-- <v-col v-for="post in posts.data" :key="post.id" cols="12">
         <v-card class="d-flex flex-column pa-4 h-100">
           <v-card-title class="d-flex justify-space-between align-start pa-0 pb-2">
             <div>
@@ -43,7 +35,7 @@ const deletePost = (postId) => {
                 </div>
               </Link>
               <div class="text-subtitle-2 text-medium-emphasis mt-1">
-                by {{ post.creator.name }} • {{ dayjs(post.created_at).format('hh:mm A, d MMM YYYY') }}
+                by <Link class="text-primary underline" :href="route('user.show', {user: post.creator.id})">{{ post.creator.name }}</Link> • {{ dayjs(post.created_at).format('hh:mm A, d MMM YYYY') }}
               </div>
             </div>
           </v-card-title>
@@ -66,6 +58,9 @@ const deletePost = (postId) => {
             </div>
           </v-card-actions>
         </v-card>
+      </v-col> -->
+      <v-col v-for="post in posts.data" :key="post.id" cols="12">
+        <PostCard :post="post" />
       </v-col>
     </v-row>
   </DashboardLayout>

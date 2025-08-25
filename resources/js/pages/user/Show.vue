@@ -2,10 +2,11 @@
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import dayjs from 'dayjs';
 import { ref } from 'vue';
+import PostCard from '@/components/PostCard.vue';
 
 const activeTab = ref('posts');
 
-const { user } = defineProps({
+defineProps({
   user: Object
 });
 
@@ -25,8 +26,8 @@ const { user } = defineProps({
 
           <!-- User Details -->
           <v-col cols="12" md="grow" class="text-md-left pl-md-6 mt-md-0 mt-4 text-center">
-            <h1 class="text-h4 font-weight-bold text-blue-grey-darken-4">{{ 'UserName' }}</h1>
-            <p class="text-subtitle-1 text-medium-emphasis mt-1">{{ 'No bio available.' }}</p>
+            <h1 class="text-h4 font-weight-bold">{{ 'UserName' }}</h1>
+            <p class="text-subtitle-1">{{ 'No bio available.' }}</p>
             <div class="text-body-2 text-grey-darken-1 mt-2">
               <v-icon size="small" icon="mdi-map-marker" class="mr-1"></v-icon>
               {{ 'Location not specified' }}
@@ -40,11 +41,11 @@ const { user } = defineProps({
       </v-card>
 
       <!-- Tabbed Interface for Posts and Other Content -->
-      <v-card class="pa-4" rounded="xl" elevation="2">
+      <v-card>
         <v-tabs v-model="activeTab" grow color="primary">
           <v-tab value="posts">
             <v-icon start icon="mdi-post-outline"></v-icon>
-            Posts ({{ 15 }})
+            Posts ({{ user.posts.length }})
           </v-tab>
           <v-tab value="about">
             <v-icon start icon="mdi-information-outline"></v-icon>
@@ -56,23 +57,15 @@ const { user } = defineProps({
           <v-window v-model="activeTab">
             <!-- Posts Tab Content -->
             <v-window-item value="posts">
-              <div class="text-medium-emphasis py-8 text-center">
+              <div v-if="!user.posts.length" class="text-medium-emphasis py-8 text-center">
                 <v-icon size="64" color="grey-lighten-2">mdi-inbox</v-icon>
                 <p class="mt-2">No posts yet.</p>
               </div>
-              <!-- <v-list v-else>
-                <v-list-item v-for="post in user.posts" :key="post.id" class="my-4">
-                  <v-card class="pa-4" rounded="lg" variant="tonal">
-                    <div class="d-flex justify-space-between align-start">
-                      <v-card-title class="text-h6 font-weight-bold pa-0">{{ post.title }}</v-card-title>
-                      <v-card-subtitle class="text-caption pa-0 mt-1">
-                        {{ formatDate(post.created_at) }}
-                      </v-card-subtitle>
-                    </div>
-                    <v-card-text class="text-body-2 text-medium-emphasis pa-0 mt-2">{{ truncate(post.content, 150) }}</v-card-text>
-                  </v-card>
+              <v-list v-else>
+                <v-list-item v-for="post in user.posts" :key="post.id" class="border-b">
+                  <PostCard :post="post" />
                 </v-list-item>
-              </v-list> -->
+              </v-list>
             </v-window-item>
 
             <!-- About Tab Content -->

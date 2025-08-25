@@ -1,29 +1,16 @@
-<script setup lang="ts">
+<script setup>
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import dayjs from 'dayjs';
 
-interface Props {
-  post: Post;
-}
+defineProps({
+  post: {
+    type: Object,
+    required: true
+  }
+});
 
-const props = defineProps<Props>();
-
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  tags: string[] | null;
-  created_at: string;
-  creator: {
-    id: number;
-    name: string;
-    username: string;
-    profile_photo_path: string | null;
-  };
-}
-
-const deletePost = (postId: string) => {
+const deletePost = (postId) => {
   if (confirm('Are you sure you want to delete this post?')) {
     router.delete(route('post.destroy', postId), {
       onSuccess: () => {
@@ -44,7 +31,7 @@ const deletePost = (postId: string) => {
         <div>
           <h1 class="text-h4 font-weight-bold">{{ post.title }}</h1>
           <div class="text-subtitle-1 text-medium-emphasis mt-2">
-            by <span class="font-weight-bold">{{ post.creator.name }}</span> •
+            by <Link :href="route('user.show', {user: post.creator.id})" class="font-weight-bold text-primary">{{ post.creator.name }}</Link> •
             {{ dayjs(post.created_at).format('MMMM d, YYYY h:mm a') }}
           </div>
         </div>
