@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ReactionType;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
@@ -14,12 +16,19 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::with('creator:id,name')
+        $user = Auth::user();
+
+        $posts = Post::with(['creator:id,name', 'reactions', 'comments', 'all_comments'])
+            ->withCount(['reactions', 'all_comments'])
+            ->with(['reactions' => function($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }])
             ->latest()
             ->paginate(15);
 
         return Inertia::render('post/Index', [
-            'posts' => $posts
+            'posts' => $posts,
+            'reaction_types' => ReactionType::all()
         ]);
     }
 
@@ -54,7 +63,13 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        $post->load('creator:id,name');
+        $post->load(['creator:id,name',
+            'comments' => function($query) {
+                $query->whereNull('parent_id')
+                    ->with(['user', 'replies.user']) // This will load all nested replies recursively
+                    ->orderBy('created_at', 'desc');
+            }
+        ]);
 
         return Inertia::render('post/Show', [
             'post' => $post
