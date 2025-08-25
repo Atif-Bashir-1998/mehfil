@@ -1,35 +1,19 @@
-<script setup lang="ts">
+<script setup>
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { useToast } from "vue-toastification";
 
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  tags: string[] | null;
-  created_at: string;
-  creator: {
-    id: number;
-    name: string;
-    username: string;
-    profile_photo_path: string | null;
-  };
-}
-
-interface Props {
-  post?: Post;
-}
-
-const { post } = defineProps<Props>();
+const { post } = defineProps({
+  post: Object
+});
 const toast = useToast();
 
 // Form setup
 const form = useForm({
   title: post?.title || '',
   content: post?.content || '',
-  tags: post?.tags || ([] as string[]),
+  tags: post?.tags || [],
 });
 
 const newTag = ref('');
@@ -42,7 +26,7 @@ const addTag = () => {
   }
 };
 
-const removeTag = (index: number) => {
+const removeTag = (index) => {
   form.tags.splice(index, 1);
 };
 
@@ -163,7 +147,7 @@ const submitPost = () => {
         </v-form>
       </v-card-text>
 
-      <v-card-actions class="d-flex pa-4 justify-end gap-3">
+      <v-card-actions class="d-flex justify-end gap-3">
         <v-btn type="button" color="error" variant="outlined" @click="router.visit(route('dashboard'))" :disabled="isSubmitting"> Cancel </v-btn>
         <v-btn type="submit" color="primary" variant="flat" @click="submitPost" :disabled="isSubmitting || !form.title || !form.content">
           <span v-if="isSubmitting">

@@ -2,10 +2,8 @@ import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
-import { initializeTheme } from './composables/useAppearance';
 
 // Vuetify
 import 'vuetify/styles'
@@ -17,9 +15,8 @@ import * as directives from 'vuetify/directives'
 // vue-toastification
 import Toast, { POSITION } from "vue-toastification";
 import "vue-toastification/dist/index.css";
-import { ToastOptions } from 'vue-toastification/dist/types/types';
 
-const toastOptions: ToastOptions = {
+const toastOptions = {
   position: POSITION.TOP_RIGHT,
   timeout: 3000 , // 3 seconds
   closeOnClick: true,
@@ -53,7 +50,7 @@ const vuetify = createVuetify({
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
-    resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
+    resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob('./pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
@@ -66,6 +63,3 @@ createInertiaApp({
         color: '#4B5563',
     },
 });
-
-// This will set light / dark mode on page load...
-initializeTheme();

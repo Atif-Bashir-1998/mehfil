@@ -65,9 +65,10 @@
   </v-app>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { router, usePage } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
+import { handleLogout } from '@/utils/logout';
 
 const theme = ref('light');
 const drawer = ref(true);
@@ -78,19 +79,19 @@ const toggleTheme = () => {
   localStorage.setItem('theme', theme.value);
 };
 
-const handleLogout = () => {
-  let url = route('logout');
+// const handleLogout = () => {
+//   let url = route('logout');
 
-  router.post(
-    url,
-    {},
-    {
-      onSuccess: () => {
-        router.flushAll();
-      },
-    },
-  );
-};
+//   router.post(
+//     url,
+//     {},
+//     {
+//       onSuccess: () => {
+//         router.flushAll();
+//       },
+//     },
+//   );
+// };
 
 // Load saved theme preference on component mount
 onMounted(() => {

@@ -1,53 +1,47 @@
-<script setup lang="ts">
-import InputError from '@/components/InputError.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+<script setup>
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
+import { useForm } from '@inertiajs/vue3';
 
 const form = useForm({
-    password: '',
+  password: '',
 });
 
 const submit = () => {
-    form.post(route('password.confirm'), {
-        onFinish: () => {
-            form.reset();
-        },
-    });
+  form.post(route('password.confirm'), {
+    onFinish: () => {
+      form.reset();
+    },
+  });
 };
 </script>
 
 <template>
-    <AuthLayout title="Confirm your password" description="This is a secure area of the application. Please confirm your password before continuing.">
-        <Head title="Confirm password" />
+  <AuthLayout title="Confirm your password">
+    <v-card class="pa-4 pa-md-8" elevation="4">
+      <v-card-title> Confirm password </v-card-title>
+      <v-card-subtitle> Please confirm your password before continuing </v-card-subtitle>
 
-        <form @submit.prevent="submit">
-            <div class="space-y-6">
-                <div class="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                        id="password"
-                        type="password"
-                        class="mt-1 block w-full"
-                        v-model="form.password"
-                        required
-                        autocomplete="current-password"
-                        autofocus
-                    />
+      <v-form @submit.prevent="submit">
+        <div class="my-6">
+          <v-text-field
+            id="password"
+            v-model="form.password"
+            label="Password"
+            type="password"
+            placeholder="Password"
+            :error-messages="form.errors?.password"
+            variant="outlined"
+            rounded="lg"
+            required
+            autofocus
+          ></v-text-field>
+        </div>
 
-                    <InputError :message="form.errors.password" />
-                </div>
-
-                <div class="flex items-center">
-                    <Button class="w-full" :disabled="form.processing">
-                        <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
-                        Confirm Password
-                    </Button>
-                </div>
-            </div>
-        </form>
-    </AuthLayout>
+        <v-btn color="primary" size="large" block type="submit" :disabled="form.processing">
+          <v-progress-circular v-if="form.processing" size="20" width="2" color="white" indeterminate class="mr-2"></v-progress-circular>
+          Confirm Password
+        </v-btn>
+      </v-form>
+    </v-card>
+  </AuthLayout>
 </template>

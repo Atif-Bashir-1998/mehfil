@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PostController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -16,6 +17,11 @@ Route::group([
     })->middleware(['auth', 'verified'])->name('dashboard');
 
     Route::resource('post', PostController::class);
+    Route::get('/profile/{user}', function(User $user) {
+        return Inertia::render('user/Show', [
+            'user' => $user->with('posts')
+        ]);
+    });
 });
 
 require __DIR__.'/settings.php';

@@ -1,4 +1,4 @@
-<script setup lang="ts"></script>
+<script setup></script>
 
 <template>
   <v-app>
@@ -26,8 +26,8 @@
               ></v-img>
 
               <div class="d-flex ga-4 mt-8 flex-wrap justify-center">
-                <v-btn size="large" color="primary" rounded="xl" class="text-white"> Join Mehfil </v-btn>
-                <v-btn size="large" variant="outlined" color="blue-grey-darken-4" rounded="xl"> Log In </v-btn>
+                <v-btn :href="route('register')" size="large" color="primary" rounded="xl" class="text-white"> Join Mehfil </v-btn>
+                <v-btn :href="route('login')" size="large" variant="outlined" color="blue-grey-darken-4" rounded="xl"> Log In </v-btn>
               </div>
             </v-card>
           </v-col>

@@ -1,54 +1,63 @@
-<script setup lang="ts">
-import InputError from '@/components/InputError.vue';
-import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+<script setup>
+import { useForm } from '@inertiajs/vue3';
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
 
-defineProps<{
-    status?: string;
-}>();
+defineProps({
+  status: {
+    type: String,
+    required: false,
+  },
+});
 
 const form = useForm({
-    email: '',
+  email: '',
 });
 
 const submit = () => {
-    form.post(route('password.email'));
+  form.post(route('password.email'));
 };
 </script>
 
 <template>
-    <AuthLayout title="Forgot password" description="Enter your email to receive a password reset link">
-        <Head title="Forgot password" />
+  <AuthLayout title="Forgot password">
+    <v-card class="pa-4 pa-md-8" rounded="xl" elevation="4">
+      <v-card-title class="text-h5 font-weight-bold mb-2 text-center"> Forgot password? </v-card-title>
+      <v-card-subtitle class="text-medium-emphasis mb-4 text-center"> Don't worry, we'll send you a password reset link </v-card-subtitle>
 
-        <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">
-            {{ status }}
+      <v-alert v-if="status" type="success" variant="tonal" class="mb-4" rounded="lg">
+        {{ status }}
+      </v-alert>
+
+      <v-form @submit.prevent="submit">
+        <div class="mb-6">
+          <v-text-field
+            id="email"
+            v-model="form.email"
+            label="Email address"
+            type="email"
+            name="email"
+            autocomplete="off"
+            placeholder="email@example.com"
+            :error-messages="form.errors?.email"
+            variant="outlined"
+            rounded="lg"
+            required
+            autofocus
+          ></v-text-field>
         </div>
 
-        <div class="space-y-6">
-            <form @submit.prevent="submit">
-                <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
-                    <Input id="email" type="email" name="email" autocomplete="off" v-model="form.email" autofocus placeholder="email@example.com" />
-                    <InputError :message="form.errors.email" />
-                </div>
+        <v-btn color="primary" size="large" rounded="lg" block type="submit" :disabled="form.processing">
+          <v-progress-circular v-if="form.processing" size="20" width="2" color="white" indeterminate class="mr-2"></v-progress-circular>
+          Email password reset link
+        </v-btn>
 
-                <div class="my-6 flex items-center justify-start">
-                    <Button class="w-full" :disabled="form.processing">
-                        <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
-                        Email password reset link
-                    </Button>
-                </div>
-            </form>
+        <v-divider class="my-6"></v-divider>
 
-            <div class="space-x-1 text-center text-sm text-muted-foreground">
-                <span>Or, return to</span>
-                <TextLink :href="route('login')">log in</TextLink>
-            </div>
+        <div class="text-body-2 text-medium-emphasis text-center">
+          <span>Or, return to</span>
+          <v-btn :href="route('login')" variant="text" class="pa-0 text-blue-grey-darken-2 font-weight-bold"> log in </v-btn>
         </div>
-    </AuthLayout>
+      </v-form>
+    </v-card>
+  </AuthLayout>
 </template>

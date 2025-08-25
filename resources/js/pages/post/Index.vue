@@ -1,33 +1,16 @@
-<script setup lang="ts">
+<script setup>
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import dayjs from 'dayjs';
 
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  tags: string[] | null;
-  created_at: string;
-  creator: {
-    id: number;
-    name: string;
-    username: string;
-    profile_photo_path: string | null;
-  };
-}
-
-interface Props {
+const { posts } = defineProps({
   posts: {
-    data: Post[];
-    links: any[];
-    meta: any;
-  };
-}
+    type: Object,
+    required: true
+  }
+});
 
-const props = defineProps<Props>();
-
-const deletePost = (postId: string) => {
+const deletePost = (postId) => {
   if (confirm('Are you sure you want to delete this post?')) {
     router.delete(route('post.destroy', postId), {
       preserveScroll: true,
@@ -54,11 +37,11 @@ const deletePost = (postId: string) => {
         <v-card class="d-flex flex-column pa-4 h-100">
           <v-card-title class="d-flex justify-space-between align-start pa-0 pb-2">
             <div>
-              <router-link :to="{ name: 'post.show', params: { id: post.id } }" class="text-decoration-none">
+              <Link :href="route('post.show', {id: post.id})" class="text-decoration-none">
                 <div class="text-h6 font-weight-bold text-primary">
                   {{ post.title }}
                 </div>
-              </router-link>
+              </Link>
               <div class="text-subtitle-2 text-medium-emphasis mt-1">
                 by {{ post.creator.name }} • {{ dayjs(post.created_at).format('hh:mm A, d MMM YYYY') }}
               </div>
@@ -77,7 +60,7 @@ const deletePost = (postId: string) => {
 
           <v-card-actions class="pa-0 pt-4">
             <v-btn variant="text" size="small" :href="route('post.show', post.id)"> Read More </v-btn>
-            <div v-if="$page.props.auth.user?.id === post.creator.id" class="d-flex ga-2 justify-end">
+            <div v-if="usePage().props.auth.user?.id === post.creator.id" class="d-flex ga-2 justify-end">
               <v-btn variant="outlined" size="small" :href="route('post.edit', post.id)"> Edit </v-btn>
               <v-btn color="red-darken-2" variant="flat" size="small" @click="deletePost(post.id)"> Delete </v-btn>
             </div>
