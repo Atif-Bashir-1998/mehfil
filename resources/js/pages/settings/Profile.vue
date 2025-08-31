@@ -1,108 +1,168 @@
-<script setup lang="ts">
+<script setup>
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 import DeleteUser from '@/components/DeleteUser.vue';
-import HeadingSmall from '@/components/HeadingSmall.vue';
-import InputError from '@/components/InputError.vue';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import AppLayout from '@/layouts/AppLayout.vue';
-import SettingsLayout from '@/layouts/settings/Layout.vue';
-import { type BreadcrumbItem, type User } from '@/types';
+import DashboardLayout from '@/layouts/DashboardLayout.vue';
 
-interface Props {
-    mustVerifyEmail: boolean;
-    status?: string;
-}
-
-defineProps<Props>();
-
-const breadcrumbItems: BreadcrumbItem[] = [
-    {
-        title: 'Profile settings',
-        href: '/settings/profile',
-    },
-];
+const { status, mustVerifyEmail } = defineProps({
+  status: {
+    required: false,
+  },
+  mustVerifyEmail: {
+    type: Boolean,
+  },
+});
 
 const page = usePage();
-const user = page.props.auth.user as User;
+const user = page.props.auth.user;
 
 const form = useForm({
-    name: user.name,
-    email: user.email,
+  name: user.name,
+  email: user.email,
+  profile_image: null,
+  cover_image: null,
 });
 
 const submit = () => {
-    form.patch(route('profile.update'), {
-        preserveScroll: true,
+  form
+    .transform((data) => ({
+      ...data,
+      _method: 'patch',
+    }))
+    .post(route('profile.update'), {
+      preserveScroll: true,
+      // _method: 'patch',
     });
+};
+
+// Image previews
+const profileImagePreview = ref(user.profile_image?.image_url || null);
+const coverImagePreview = ref(user.cover_image?.image_url || null);
+
+const handleProfileImageChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    profileImagePreview.value = URL.createObjectURL(file);
+    form.profile_image = file;
+  }
+};
+
+const handleCoverImageChange = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    coverImagePreview.value = URL.createObjectURL(file);
+    form.cover_image = file;
+  }
 };
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbItems">
-        <Head title="Profile settings" />
+  <Head title="Profile settings" />
 
-        <SettingsLayout>
-            <div class="flex flex-col space-y-6">
-                <HeadingSmall title="Profile information" description="Update your name and email address" />
+  <DashboardLayout>
+    <v-container class="my-8" style="max-width: 900px">
+      <v-card class="pa-6 mb-8" rounded="lg" elevation="4">
+        <v-card-title class="text-h4 font-weight-bold">Profile Information</v-card-title>
+        <v-card-subtitle class="text-body-1"> Update your account's profile information and email address. </v-card-subtitle>
 
-                <form @submit.prevent="submit" class="space-y-6">
-                    <div class="grid gap-2">
-                        <Label for="name">Name</Label>
-                        <Input id="name" class="mt-1 block w-full" v-model="form.name" required autocomplete="name" placeholder="Full name" />
-                        <InputError class="mt-2" :message="form.errors.name" />
-                    </div>
+        <v-card-text>
+          <v-form @submit.prevent="submit">
+            <v-container>
+              <v-row class="mb-4">
+                <v-col cols="12" sm="6">
+                  <v-card flat class="bg-grey-lighten-4 pa-4 rounded-lg">
+                    <v-card-title class="text-h6 font-weight-bold pa-0 mb-2">Profile Image</v-card-title>
+                    <v-file-input
+                      label="Upload Profile Image"
+                      prepend-icon="mdi-camera-account"
+                      accept="image/*"
+                      variant="outlined"
+                      density="compact"
+                      :error-messages="form.errors.profile_image"
+                      @change="handleProfileImageChange"
+                    ></v-file-input>
+                    <v-img v-if="profileImagePreview" :src="profileImagePreview" height="150" class="mt-2 rounded-lg" contain></v-img>
+                  </v-card>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-card flat class="bg-grey-lighten-4 pa-4 rounded-lg">
+                    <v-card-title class="text-h6 font-weight-bold pa-0 mb-2">Cover Image</v-card-title>
+                    <v-file-input
+                      label="Upload Cover Image"
+                      prepend-icon="mdi-image-plus"
+                      accept="image/*"
+                      variant="outlined"
+                      density="compact"
+                      :error-messages="form.errors.cover_image"
+                      @change="handleCoverImageChange"
+                    ></v-file-input>
+                    <v-img v-if="coverImagePreview" :src="coverImagePreview" height="150" class="mt-2 rounded-lg" contain></v-img>
+                  </v-card>
+                </v-col>
+              </v-row>
 
-                    <div class="grid gap-2">
-                        <Label for="email">Email address</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            class="mt-1 block w-full"
-                            v-model="form.email"
-                            required
-                            autocomplete="username"
-                            placeholder="Email address"
-                        />
-                        <InputError class="mt-2" :message="form.errors.email" />
-                    </div>
+              <v-row class="mb-4">
+                <v-col cols="12">
+                  <v-text-field
+                    v-model="form.name"
+                    label="Name"
+                    placeholder="Full name"
+                    prepend-inner-icon="mdi-account"
+                    variant="outlined"
+                    :error-messages="form.errors.name"
+                    required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
 
-                    <div v-if="mustVerifyEmail && !user.email_verified_at">
-                        <p class="-mt-4 text-sm text-muted-foreground">
-                            Your email address is unverified.
-                            <Link
-                                :href="route('verification.send')"
-                                method="post"
-                                as="button"
-                                class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
-                            >
-                                Click here to resend the verification email.
-                            </Link>
-                        </p>
+              <v-row class="mb-4">
+                <v-col cols="12">
+                  <v-text-field
+                    v-model="form.email"
+                    label="Email address"
+                    placeholder="Email address"
+                    prepend-inner-icon="mdi-email"
+                    variant="outlined"
+                    type="email"
+                    :error-messages="form.errors.email"
+                    required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
 
-                        <div v-if="status === 'verification-link-sent'" class="mt-2 text-sm font-medium text-green-600">
-                            A new verification link has been sent to your email address.
-                        </div>
-                    </div>
+              <v-row v-if="mustVerifyEmail && !user.email_verified_at">
+                <v-col cols="12" class="-mt-4">
+                  <v-alert type="warning" variant="outlined" color="warning" density="compact" class="mb-4">
+                    Your email address is unverified.
+                    <Link :href="route('verification.send')" method="post" as="button" class="text-decoration-underline text-warning">
+                      Click here to resend the verification email.
+                    </Link>
+                  </v-alert>
 
-                    <div class="flex items-center gap-4">
-                        <Button :disabled="form.processing">Save</Button>
+                  <v-alert v-if="status === 'verification-link-sent'" type="success" variant="tonal" density="compact" class="mt-2">
+                    A new verification link has been sent to your email address.
+                  </v-alert>
+                </v-col>
+              </v-row>
 
-                        <Transition
-                            enter-active-class="transition ease-in-out"
-                            enter-from-class="opacity-0"
-                            leave-active-class="transition ease-in-out"
-                            leave-to-class="opacity-0"
-                        >
-                            <p v-show="form.recentlySuccessful" class="text-sm text-neutral-600">Saved.</p>
-                        </Transition>
-                    </div>
-                </form>
-            </div>
+              <v-row>
+                <v-col cols="12" class="d-flex align-center ga-4">
+                  <v-btn type="submit" color="primary" variant="flat" :loading="form.processing"> Save </v-btn>
 
-            <DeleteUser />
-        </SettingsLayout>
-    </AppLayout>
+                  <v-fade-transition>
+                    <p v-show="form.recentlySuccessful" class="text-body-2 text-medium-emphasis">Saved.</p>
+                  </v-fade-transition>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-form>
+        </v-card-text>
+      </v-card>
+
+      <v-divider class="my-6"></v-divider>
+
+      <DeleteUser />
+    </v-container>
+  </DashboardLayout>
 </template>

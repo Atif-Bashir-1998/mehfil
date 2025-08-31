@@ -28,7 +28,11 @@
 
           <v-menu>
             <template v-slot:activator="{ props }">
-              <v-btn icon="mdi-account" variant="tonal" v-bind="props"></v-btn>
+              <v-btn icon variant="tonal" v-bind="props" size="small">
+                <v-avatar size="36">
+                  <v-img :src="user.profile_image?.image_url || 'https://eu.ui-avatars.com/api/?name=' + user.name + '&size=64'"></v-img>
+                </v-avatar>
+              </v-btn>
             </template>
 
             <v-list>
@@ -79,6 +83,8 @@ import { route } from 'ziggy-js';
 
 const theme = ref('light');
 const drawer = ref(true);
+
+const { user } = usePage().props.auth
 
 // Toggle between light and dark themes
 const toggleTheme = () => {
