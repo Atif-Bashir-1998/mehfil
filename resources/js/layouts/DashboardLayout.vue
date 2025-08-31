@@ -82,7 +82,7 @@
 <script setup>
 import Logo from '@/assets/images/logo.png';
 import { handleLogout } from '@/utils/logout';
-import { usePage } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
 import { route } from 'ziggy-js';
 
@@ -109,6 +109,7 @@ onMounted(() => {
     window.Echo.private(`App.Models.User.${user.id}`).notification((notification) => {
       snackbarNotifications.value.push(notification.message);
       console.log({ notification });
+      router.reload();
     });
   }
 });
