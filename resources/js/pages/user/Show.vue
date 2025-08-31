@@ -1,13 +1,13 @@
 <script setup>
+import PostCard from '@/components/PostCard.vue';
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import dayjs from 'dayjs';
 import { ref } from 'vue';
-import PostCard from '@/components/PostCard.vue';
 
 const activeTab = ref('posts');
 
 const { user } = defineProps({
-  user: Object
+  user: Object,
 });
 </script>
 
@@ -17,7 +17,10 @@ const { user } = defineProps({
       <v-card class="pa-0 mb-8" rounded="lg" elevation="4">
         <div class="relative">
           <v-img
-            :src="user.cover_image?.image_url || 'https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'"
+            :src="
+              user.cover_image?.image_url ||
+              'https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+            "
             height="200"
             cover
             class="bg-grey-lighten-2"
@@ -53,7 +56,7 @@ const { user } = defineProps({
         <v-tabs v-model="activeTab" grow color="primary">
           <v-tab value="posts">
             <v-icon start icon="mdi-post-outline"></v-icon>
-            Posts ({{ user.posts_count }})
+            Posts ({{ user.posts.length }})
           </v-tab>
           <v-tab value="about">
             <v-icon start icon="mdi-information-outline"></v-icon>
@@ -76,8 +79,41 @@ const { user } = defineProps({
             </v-window-item>
 
             <v-window-item value="about">
-              <div class="text-medium-emphasis py-8 text-center">
-                <p>This is the "About" section. You can add more details here.</p>
+              <div v-if="user.slogan || user.occupation || user.location" class="py-4">
+                <v-row>
+                  <v-col v-if="user.slogan" cols="12">
+                    <v-card flat class="pa-4 rounded-lg border">
+                      <v-card-title class="text-h6 font-weight-bold pa-0 mb-2">Slogan</v-card-title>
+                      <v-card-text class="text-subtitle-1 pa-0 text-medium-emphasis text-wrap">{{ user.slogan }}</v-card-text>
+                    </v-card>
+                  </v-col>
+
+                  <v-col v-if="user.occupation || user.location" cols="12" class="d-flex ga-4 flex-wrap">
+                    <v-card v-if="user.occupation" flat class="pa-4 flex-grow-1 rounded-lg border">
+                      <div class="d-flex align-center">
+                        <v-icon icon="mdi-briefcase-variant" size="x-large" class="mr-2"></v-icon>
+                        <div>
+                          <div class="text-h6 font-weight-bold">Occupation</div>
+                          <div class="text-subtitle-1 text-medium-emphasis">{{ user.occupation }}</div>
+                        </div>
+                      </div>
+                    </v-card>
+
+                    <v-card v-if="user.location" flat class="pa-4 flex-grow-1 rounded-lg border">
+                      <div class="d-flex align-center">
+                        <v-icon icon="mdi-map-marker" size="x-large" class="mr-2"></v-icon>
+                        <div>
+                          <div class="text-h6 font-weight-bold">Location</div>
+                          <div class="text-subtitle-1 text-medium-emphasis">{{ user.location }}</div>
+                        </div>
+                      </div>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </div>
+
+              <div v-else class="text-medium-emphasis py-8 text-center">
+                <p>No additional information available.</p>
               </div>
             </v-window-item>
           </v-window>
@@ -101,7 +137,7 @@ const { user } = defineProps({
 }
 
 .post-list-container {
-    display: grid;
-    gap: 24px;
+  display: grid;
+  gap: 24px;
 }
 </style>

@@ -20,6 +20,9 @@ const user = page.props.auth.user;
 const form = useForm({
   name: user.name,
   email: user.email,
+  slogan: user.slogan,
+  occupation: user.occupation,
+  location: user.location,
   profile_image: null,
   cover_image: null,
 });
@@ -127,6 +130,42 @@ const handleCoverImageChange = (e) => {
                     type="email"
                     :error-messages="form.errors.email"
                     required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+
+              <v-divider class="my-4"></v-divider>
+
+              <h3 class="text-h6 font-weight-bold mb-4">Additional Information</h3>
+              <v-row>
+                <v-col cols="12">
+                  <v-text-field
+                    v-model="form.slogan"
+                    label="Slogan"
+                    placeholder="Your favorite quote or motto"
+                    prepend-inner-icon="mdi-format-quote-open"
+                    variant="outlined"
+                    :error-messages="form.errors.slogan"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    v-model="form.occupation"
+                    label="Occupation"
+                    placeholder="Your job title or profession"
+                    prepend-inner-icon="mdi-briefcase-variant"
+                    variant="outlined"
+                    :error-messages="form.errors.occupation"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    v-model="form.location"
+                    label="Location"
+                    placeholder="City, Country"
+                    prepend-inner-icon="mdi-map-marker"
+                    variant="outlined"
+                    :error-messages="form.errors.location"
                   ></v-text-field>
                 </v-col>
               </v-row>
