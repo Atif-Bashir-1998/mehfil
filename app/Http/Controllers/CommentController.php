@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Comment;
 use App\Models\Post;
+use App\Notifications\CommentReplied;
 use App\Notifications\NewComment;
 use App\Utils\ImageHelper;
 use Illuminate\Http\Request;
@@ -39,6 +40,12 @@ class CommentController extends Controller
             $comment->image()->create([
                 'path' => $webp_path
             ]);
+        }
+
+        // if new comment is a reply to a comment, notify the user to whom it is replied
+        if ($request->parent_id) {
+            $original_comment = Comment::find($request->input('parent_id'));
+            $original_comment->user->notify(new CommentReplied($post, $original_comment, $request->user()));
         }
 
         $post->creator->notify(new NewComment($post, $request->user()));
