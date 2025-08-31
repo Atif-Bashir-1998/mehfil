@@ -31,20 +31,6 @@ const vuetify = createVuetify({
   directives,
   theme: {
     defaultTheme: 'light',
-    themes: {
-      dark: {
-        colors: {
-          primary: '#43ec83',
-          error: '#D32F2F'
-        }
-      },
-      light: {
-        colors: {
-          primary: '#43ec83',
-          error: '#D32F2F'
-        }
-      }
-    }
   }
 });
 

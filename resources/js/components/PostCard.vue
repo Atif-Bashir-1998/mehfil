@@ -1,7 +1,6 @@
 <template>
-  <v-card class="pa-4" variant="outlined">
-    <!-- Header with author info -->
-    <div class="d-flex align-center mb-3">
+  <v-card class="pa-4" variant="tonal">
+    <div class="d-flex align-center">
       <v-avatar size="40" class="mr-3">
         <v-img :src="post.creator.avatar_url || 'https://eu.ui-avatars.com/api/?name=John+Doe&size=250'" alt="Avatar" />
       </v-avatar>
@@ -27,7 +26,6 @@
       </v-menu>
     </div>
 
-    <!-- Post content -->
     <v-card-title class="pa-0 mb-2">
       <Link :href="route('post.show', { id: post.id })" class="text-decoration-none">
         <div class="text-h6 font-weight-bold text-primary">
@@ -36,20 +34,57 @@
       </Link>
     </v-card-title>
 
-    <v-card-text class="pa-0 text-body-2 mb-3">
+    <v-card-text class="pa-0 text-body-2">
       <p class="mb-0">{{ post.content.substring(0, 200) }}{{ post.content.length > 200 ? '...' : '' }}</p>
     </v-card-text>
 
-    <!-- Tags -->
+    <v-row v-if="post.images && post.images.length > 0" class="mb-3" compact>
+      <v-col v-if="post.images.length === 1" cols="12">
+        <Link :href="route('post.show', { id: post.id })">
+          <v-img
+            :src="post.images[0].image_url"
+            alt="Post Image"
+            cover
+            class="rounded-lg"
+            height="300"
+          ></v-img>
+        </Link>
+      </v-col>
+
+      <v-col v-else-if="post.images.length >= 2" :cols="12">
+        <v-row dense>
+          <v-col
+            v-for="(image, index) in post.images.slice(0, 3)"
+            :key="index"
+            :cols="post.images.length === 2 ? 6 : 4"
+            >
+            <Link :href="route('post.show', { id: post.id })">
+              <v-img
+                :src="image.image_url"
+                :alt="`Image ${index + 1}`"
+                cover
+                class="rounded-lg"
+                height="150"
+              >
+                <div
+                  v-if="index === 2 && post.images.length > 3"
+                  class="d-flex fill-height justify-center align-center overlay"
+                >
+                  <span class="text-h5 font-weight-bold text-white">+{{ post.images.length - 3 }}</span>
+                </div>
+              </v-img>
+            </Link>
+          </v-col>
+        </v-row>
+      </v-col>
+    </v-row>
     <div v-if="post.tags && post.tags.length > 0" class="d-flex ga-1 mb-3 flex-wrap">
       <v-chip v-for="(tag, index) in post.tags" :key="index" size="small" variant="outlined" color="primary">
         {{ tag }}
       </v-chip>
     </div>
 
-    <!-- Stats and Actions -->
     <div class="d-flex align-center justify-space-between">
-      <!-- Reaction and comment stats -->
       <div class="d-flex align-center ga-3 text-caption text-medium-emphasis">
         <div v-if="post.reactions_count > 0" class="d-flex align-center">
           <v-icon size="small" color="blue" class="mr-1">mdi-thumb-up-outline</v-icon>
@@ -61,7 +96,6 @@
         </div>
       </div>
 
-      <!-- Action buttons -->
       <div class="d-flex align-center ga-2">
         <v-btn variant="text" size="small" @click="toggleReaction">
           <v-icon left>{{ userReaction ? userReaction.icon : 'mdi-emoticon-outline' }}</v-icon>
@@ -77,7 +111,6 @@
       </div>
     </div>
 
-    <!-- Quick reaction menu -->
     <v-menu v-model="reactionMenu" :close-on-content-click="false">
       <template v-slot:activator="{ props }">
         <div v-bind="props"></div>
@@ -139,3 +172,14 @@ const deletePost = (postId) => {
   }
 };
 </script>
+
+<style scoped>
+.overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  transition: background-color 0.3s ease;
+}
+
+.overlay:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+</style>

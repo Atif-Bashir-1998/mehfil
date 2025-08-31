@@ -3,7 +3,13 @@
     <v-app-bar class="px-4" app>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 
-      <v-app-bar-title>Mehfil app</v-app-bar-title>
+      <v-app-bar-title>
+        <v-img
+          :width="60"
+          cover
+          :src="Logo"
+        ></v-img>
+      </v-app-bar-title>
 
       <template v-slot:append>
         <v-btn icon variant="tonal" class="mr-2" @click="toggleTheme" :title="theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'">
@@ -44,16 +50,15 @@
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" app>
-      <v-list color="transparent">
-        <v-list-item prepend-icon="mdi-view-dashboard" title="Dashboard"></v-list-item>
-        <v-list-item :href="route('post.create')" prepend-icon="mdi-pencil" title="Create a post"></v-list-item>
-        <v-list-item :href="route('post.index')" prepend-icon="mdi-rss" title="Feed"></v-list-item>
+      <v-list>
+        <v-list-item :href="route('post.index')" prepend-icon="mdi-rss" title="Feed" :active="route().current() === 'post.index'" color="primary"></v-list-item>
+        <v-list-item :href="route('post.create')" prepend-icon="mdi-pencil" title="Create a post" :active="['post.create', 'post.edit'].includes(route().current())" color="primary"></v-list-item>
       </v-list>
 
       <template v-slot:append>
-        <div class="pa-2" @click="handleLogout">
-          <v-btn block color="error"> Logout </v-btn>
-        </div>
+        <v-list>
+          <v-list-item @click="handleLogout" prepend-icon="mdi-logout" title="Logout" base-color="error"></v-list-item>
+        </v-list>
       </template>
     </v-navigation-drawer>
 
@@ -66,9 +71,11 @@
 </template>
 
 <script setup>
-import { router, usePage } from '@inertiajs/vue3';
+import Logo from '@/assets/images/logo.png';
+import { usePage } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
 import { handleLogout } from '@/utils/logout';
+import { route } from 'ziggy-js';
 
 const theme = ref('light');
 const drawer = ref(true);
@@ -78,20 +85,6 @@ const toggleTheme = () => {
   theme.value = theme.value === 'light' ? 'dark' : 'light';
   localStorage.setItem('theme', theme.value);
 };
-
-// const handleLogout = () => {
-//   let url = route('logout');
-
-//   router.post(
-//     url,
-//     {},
-//     {
-//       onSuccess: () => {
-//         router.flushAll();
-//       },
-//     },
-//   );
-// };
 
 // Load saved theme preference on component mount
 onMounted(() => {

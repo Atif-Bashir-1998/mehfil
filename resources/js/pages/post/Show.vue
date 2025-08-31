@@ -1,67 +1,6 @@
-<!-- <script setup>
-import DashboardLayout from '@/layouts/DashboardLayout.vue';
-import { Head, Link, router } from '@inertiajs/vue3';
-import dayjs from 'dayjs';
-
-defineProps({
-  post: {
-    type: Object,
-    required: true
-  }
-});
-
-const deletePost = (postId) => {
-  if (confirm('Are you sure you want to delete this post?')) {
-    router.delete(route('post.destroy', postId), {
-      onSuccess: () => {
-        router.visit(route('post.index'));
-      },
-    });
-  }
-};
-</script>
-
-<template>
-  <Head :title="post.title" />
-
-  <DashboardLayout>
-    <v-card class="mx-auto">
-      <v-card-title class="d-flex justify-space-between align-start">
-        <div>
-          <h1 class="text-h4 font-weight-bold">{{ post.title }}</h1>
-          <div class="text-subtitle-1 text-medium-emphasis mt-2">
-            by <Link :href="route('user.show', {user: post.creator.id})" class="font-weight-bold text-primary">{{ post.creator.name }}</Link> •
-            {{ dayjs(post.created_at).format('MMMM d, YYYY h:mm a') }}
-          </div>
-        </div>
-        <div class="d-flex ga-2" v-if="$page.props.auth.user?.id === post.creator.id">
-          <v-btn variant="outlined" size="small" :href="route('post.edit', post.id)"> Edit </v-btn>
-          <v-btn color="red-darken-2" variant="flat" size="small" @click="deletePost(post.id)"> Delete </v-btn>
-        </div>
-      </v-card-title>
-
-      <v-card-text>
-        <div v-if="post.tags && post.tags.length > 0" class="d-flex ga-2 mb-6 flex-wrap">
-          <v-chip v-for="(tag, index) in post.tags" :key="index" size="small" label>
-            {{ tag }}
-          </v-chip>
-        </div>
-
-        <div class="prose text-body-1 mt-4 mb-6">
-          <p class="whitespace-pre-line">{{ post.content }}</p>
-        </div>
-      </v-card-text>
-
-      <v-card-actions>
-        <v-btn variant="outlined" :href="route('post.index')"> ← Back to Posts </v-btn>
-      </v-card-actions>
-    </v-card>
-  </DashboardLayout>
-</template> -->
-
 <script setup>
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime'
 import Comment from '@/components/Comment.vue';
@@ -77,12 +16,24 @@ const { post } = defineProps({
   }
 });
 
-const commentText = ref('');
+// Full-screen image dialog
+const dialog = ref(false);
+const selectedImage = ref(null);
+const form = useForm({
+  content: '',
+  image: null,
+});
+
+const showImage = (imageUrl) => {
+  selectedImage.value = imageUrl;
+  dialog.value = true;
+};
 
 const handleAddComment = () => {
   let payload = {
     parent_id: null,
-    content: commentText.value
+    content: form.content,
+    image: form.image
   }
   addComment(post.id, payload)
 }
@@ -102,103 +53,145 @@ const deletePost = (postId) => {
   <Head :title="post.title" />
 
   <DashboardLayout>
-    <!-- Main Post Card -->
-    <v-card class="mx-auto">
-      <v-card-title class="d-flex justify-space-between align-start">
-        <div>
-          <h1 class="text-h4 font-weight-bold">{{ post.title }}</h1>
-          <div class="text-subtitle-1 text-medium-emphasis mt-2">
-            by <Link :href="route('user.show', {user: post.creator.id})" class="font-weight-bold text-primary">{{ post.creator.name }}</Link> •
-            {{ dayjs(post.created_at).format('MMMM d, YYYY h:mm a') }}
+    <v-container class="my-8" style="max-width: 900px">
+      <v-card class="mx-auto pa-6 mb-8" rounded="lg" elevation="4">
+        <v-card-title class="pa-0 mb-4">
+          <h1 class="text-h4 font-weight-bold text-blue-grey-darken-4">{{ post.title }}</h1>
+          <div class="d-flex align-center text-subtitle-1 text-medium-emphasis mt-2">
+            by
+            <Link :href="route('user.show', { user: post.creator.id })" class="font-weight-bold text-primary ml-1 mr-2">
+              {{ post.creator.name }}
+            </Link>
+            • {{ dayjs(post.created_at).format('MMMM D, YYYY') }}
+          </div>
+        </v-card-title>
+
+        <v-card-text class="pa-0">
+          <div v-if="post.images && post.images.length > 0" class="my-6">
+            <v-carousel
+              cycle
+              show-arrows="hover"
+              hide-delimiters
+              height="400"
+              class="rounded-lg elevation-2"
+              color="white"
+            >
+              <v-carousel-item
+                v-for="(image, index) in post.images"
+                :key="index"
+                :src="image.image_url"
+                cover
+                @click="showImage(image.image_url)"
+                class="cursor-pointer"
+              ></v-carousel-item>
+            </v-carousel>
+          </div>
+
+          <div v-if="post.tags && post.tags.length > 0" class="d-flex ga-2 mt-4 mb-6 flex-wrap">
+            <v-chip
+              v-for="(tag, index) in post.tags"
+              :key="index"
+              size="small"
+              label
+              color="green-darken-1"
+              variant="tonal"
+            >
+              {{ tag }}
+            </v-chip>
+          </div>
+
+          <div class="text-body-1 text-medium-emphasis whitespace-pre-line">
+            {{ post.content }}
+          </div>
+        </v-card-text>
+
+        <v-divider class="my-6"></v-divider>
+
+        <div class="d-flex justify-space-between align-center">
+          <div class="d-flex align-center ga-4 text-medium-emphasis">
+            <div class="d-flex align-center ga-1" v-if="post.reactions_count > 0">
+              <v-icon size="small" color="red">mdi-heart</v-icon>
+              <span class="text-caption">{{ post.reactions_count }} reactions</span>
+            </div>
+            <div class="d-flex align-center ga-1" v-if="post.comments_count > 0">
+              <v-icon size="small">mdi-comment</v-icon>
+              <span class="text-caption">{{ post.comments_count }} comments</span>
+            </div>
+          </div>
+
+          <div class="d-flex ga-2" v-if="$page.props.auth.user?.id === post.creator.id">
+            <v-btn variant="outlined" size="small" :href="route('post.edit', post.id)" prepend-icon="mdi-pencil"> Edit </v-btn>
+            <v-btn color="red-darken-2" variant="flat" size="small" @click="deletePost(post.id)" prepend-icon="mdi-delete"> Delete </v-btn>
           </div>
         </div>
 
-        <div class="d-flex ga-2" v-if="$page.props.auth.user?.id === post.creator.id">
-          <v-btn variant="outlined" size="small" :href="route('post.edit', post.id)"> Edit </v-btn>
-          <v-btn color="red-darken-2" variant="flat" size="small" @click="deletePost(post.id)"> Delete </v-btn>
+        <div class="d-flex ga-2 mt-4">
+          <v-btn variant="text" size="small" prepend-icon="mdi-heart-outline">React</v-btn>
+          <v-btn variant="text" size="small" prepend-icon="mdi-comment-outline">Comment</v-btn>
         </div>
-      </v-card-title>
+      </v-card>
 
-      <v-card-text>
-        <!-- Tags -->
-        <div v-if="post.tags && post.tags.length > 0" class="d-flex ga-2 mb-6 flex-wrap">
-          <v-chip v-for="(tag, index) in post.tags" :key="index" size="small" label>
-            {{ tag }}
-          </v-chip>
-        </div>
+      <v-card class="mx-auto pa-6" rounded="lg" elevation="4">
+        <v-card-title class="text-h5 font-weight-bold mb-4">
+          Comments ({{ post.comments_count || 0 }})
+        </v-card-title>
 
-        <!-- Post Content -->
-        <div class="prose text-body-1 mt-4 mb-6">
-          <p class="whitespace-pre-line">{{ post.content }}</p>
-        </div>
+        <v-card-text class="pa-0">
+          <v-form @submit.prevent="handleAddComment" class="mb-8">
+            <v-textarea
+              label="Add a comment..."
+              v-model="form.content"
+              rows="3"
+              variant="outlined"
+              color="primary"
+              :error-messages="form.errors.content"
+              required
+            ></v-textarea>
 
-        <!-- Reaction Stats -->
-        <div class="d-flex align-center ga-4 text-medium-emphasis mb-4">
-          <div v-if="post.reactions_count > 0" class="d-flex align-center">
-            <v-icon size="small" color="red" class="mr-1">mdi-heart</v-icon>
-            {{ post.reactions_count }} reactions
+            <v-file-input
+              v-model="form.image"
+              label="Upload Image (Optional)"
+              prepend-icon="mdi-camera"
+              accept="image/*"
+              variant="outlined"
+              density="compact"
+              class="my-4"
+              :error-messages="form.errors.image"
+            ></v-file-input>
+
+            <v-btn
+              type="submit"
+              :loading="form.processing"
+              color="primary"
+              variant="flat"
+              :disabled="!form.content"
+              prepend-icon="mdi-comment-plus-outline"
+            >
+              Post Comment
+            </v-btn>
+          </v-form>
+
+          <div v-if="post.comments && post.comments.length > 0">
+            <Comment v-for="comment in post.comments" :key="comment.id" :comment="comment" :is-parent="true" />
           </div>
-          <div v-if="post.comments_count > 0" class="d-flex align-center">
-            <v-icon size="small" class="mr-1">mdi-comment</v-icon>
-            {{ post.comments_count }} comments
+
+          <div v-else class="text-center text-medium-emphasis py-8">
+            <v-icon size="48" class="mb-2">mdi-comment-outline</v-icon>
+            <p class="text-body-1">No comments yet. Be the first to comment!</p>
           </div>
-        </div>
-      </v-card-text>
+        </v-card-text>
+      </v-card>
+    </v-container>
 
-      <v-card-actions class="d-flex justify-space-between">
-        <v-btn variant="outlined" :href="route('post.index')"> ← Back to Posts </v-btn>
-
-        <!-- Reaction Buttons -->
-        <div class="d-flex ga-2">
-          <v-btn variant="text" size="small" prepend-icon="mdi-heart-outline">
-            React
-          </v-btn>
-          <v-btn variant="text" size="small" prepend-icon="mdi-comment-outline">
-            Comment
-          </v-btn>
-        </div>
-      </v-card-actions>
-    </v-card>
-
-    <!-- Comments Section -->
-    <v-card class="mx-auto">
-      <v-card-title>
-        <h2 class="text-h5">Comments ({{ post.comments_count || 0 }})</h2>
-      </v-card-title>
-
-      <v-card-text>
-        <!-- Add Comment Form -->
-        <form class="mb-6">
-          <v-textarea
-            label="Add a comment..."
-            name="content"
-            v-model="commentText"
-            rows="3"
-            variant="outlined"
-            required
-          ></v-textarea>
-          <v-btn @click="handleAddComment" color="primary" variant="flat">
-            Post Comment
-          </v-btn>
-        </form>
-
-        <!-- Comments List -->
-        <div v-if="post.comments && post.comments.length > 0">
-          <Comment
-            v-for="comment in post.comments"
-            :key="comment.id"
-            :comment="comment"
-            :is-parent="true"
-          />
-        </div>
-
-        <!-- No Comments Message -->
-        <div v-else class="text-center text-medium-emphasis py-8">
-          <v-icon size="large" class="mb-2">mdi-comment-outline</v-icon>
-          <p>No comments yet. Be the first to comment!</p>
-        </div>
-      </v-card-text>
-    </v-card>
+    <v-dialog v-model="dialog" max-width="800">
+      <v-card>
+        <v-img :src="selectedImage" contain></v-img>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" variant="text" @click="dialog = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </DashboardLayout>
 </template>
 

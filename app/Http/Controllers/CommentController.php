@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Comment;
 use App\Models\Post;
+use App\Utils\ImageHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 
 class CommentController extends Controller
 {
@@ -17,16 +19,26 @@ class CommentController extends Controller
     {
         $request->validate([
             'content' => ['required', 'string', 'max:1000'],
-            'parent_id' => ['nullable', 'exists:comments,id']
+            'parent_id' => ['nullable', 'exists:comments,id'],
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         $user = Auth::user();
 
-        $post->comments()->create([
+        $comment = $post->comments()->create([
             'user_id' => $user->id,
             'content' => $request->content,
             'parent_id' => $request->parent_id
         ]);
+
+        // Handle single image
+        if ($request->hasFile('image')) {
+            $webp_path = ImageHelper::convert_to_webp($request->file('image'));
+
+            $comment->image()->create([
+                'path' => $webp_path
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Comment added successfully!');
     }
@@ -38,11 +50,35 @@ class CommentController extends Controller
     {
         Gate::authorize('update', $comment);
 
-        $request->validate([
-            'content' => ['required', 'string', 'max:1000']
+        $validated = $request->validate([
+            'content' => ['required', 'string', 'max:1000'],
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'remove_image' => 'nullable|boolean' // Flag to remove existing image
         ]);
+        // Update comment
+        $comment->update(['content' => $validated['content']]);
 
-        $comment->update(['content' => $request->content]);
+        // Handle image removal
+        if ($validated['remove_image'] ?? false && $comment->image) {
+            Storage::disk('public')->delete($comment->image->path);
+            $comment->image->delete();
+        }
+
+        // Handle new image (replaces existing one)
+        if ($request->hasFile('image')) {
+            // Delete existing image if any
+            if ($comment->image) {
+                Storage::disk('public')->delete($comment->image->path);
+                $comment->image->delete();
+            }
+
+            $image = $request->file('image');
+            $webp_path = ImageHelper::convert_to_webp($image);
+
+            $comment->image()->create([
+                'path' => $webp_path,
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Comment updated successfully!');
     }

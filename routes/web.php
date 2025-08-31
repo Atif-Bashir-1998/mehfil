@@ -15,7 +15,8 @@ Route::group([
     'middleware' => ['auth', 'verified']
 ], function () {
     Route::get('dashboard', function () {
-        return Inertia::render('Dashboard');
+        // return Inertia::render('Dashboard');
+        return redirect(route('post.index'));
     })->middleware(['auth', 'verified'])->name('dashboard');
 
     Route::resource('post', PostController::class);

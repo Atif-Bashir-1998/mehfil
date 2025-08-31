@@ -1,55 +1,69 @@
 <template>
-  <div class="comment" :class="{ 'is-reply': !isParent }">
-    <!-- Comment Header -->
-    <div class="comment-header">
-      <v-avatar size="24" class="mr-2">
+  <div class="comment-item" :class="{ 'is-reply': !isParent }">
+    <div class="d-flex align-start mb-2">
+      <v-avatar size="36" class="mr-3 mt-1">
         <v-img :src="comment.user.avatar_url || defaultAvatar" />
       </v-avatar>
-      <span class="comment-author font-weight-medium">{{ comment.user.name }}</span>
-      <span class="comment-time text-caption text-medium-emphasis ml-2">
-        {{ dayjs(comment.created_at).fromNow() }}
-      </span>
+
+      <div class="flex-grow-1">
+        <div class="d-flex align-center">
+          <span class="font-weight-bold text-body-1">{{ comment.user.name }}</span>
+          <span class="text-caption text-medium-emphasis ml-2">
+            {{ dayjs(comment.created_at).fromNow() }}
+          </span>
+        </div>
+
+        <p class="text-body-2 mb-2 mt-1 whitespace-pre-line">{{ comment.content }}</p>
+
+        <v-card v-if="comment.image" flat class="my-3 rounded-lg overflow-hidden">
+          <v-img
+            :src="comment.image.image_url"
+            max-height="250"
+            cover
+            @click="showImage(comment.image.image_url)"
+            class="cursor-pointer"
+          ></v-img>
+        </v-card>
+
+        <div class="d-flex ga-2">
+          <v-btn
+            size="x-small"
+            variant="text"
+            color="primary"
+            prepend-icon="mdi-reply"
+            class="text-caption"
+            @click="toggleReply"
+          >
+            Reply
+          </v-btn>
+
+          <v-btn
+            v-if="$page.props.auth.user?.id === comment.user_id"
+            size="x-small"
+            variant="text"
+            prepend-icon="mdi-delete"
+            class="text-caption text-error"
+            @click="deleteComment"
+          >
+            Delete
+          </v-btn>
+        </div>
+      </div>
     </div>
 
-    <!-- Comment Content -->
-    <div class="comment-content">
-      <p class="comment-text text-body-2 mb-2">{{ comment.content }}</p>
-
-      <!-- Comment Actions -->
-      <div class="comment-actions">
-        <v-btn
-          size="x-small"
-          variant="text"
-          prepend-icon="mdi-reply"
-          class="text-caption"
-          @click="toggleReply"
-        >
-          Reply
-        </v-btn>
-
-        <v-btn
-          v-if="$page.props.auth.user?.id === comment.user_id"
-          size="x-small"
-          variant="text"
-          prepend-icon="mdi-delete"
-          class="text-caption text-error"
-          @click="deleteComment"
-        >
-          Delete
-        </v-btn>
-      </div>
-
-      <!-- Reply Form -->
-      <div v-if="showReplyForm" class="reply-form mt-3">
+    <div class="comment-children" :class="{ 'ml-8': isParent }">
+      <div v-if="showReplyForm" class="reply-form mt-4">
         <v-textarea
           v-model="replyContent"
           label="Write a reply..."
           variant="outlined"
           rows="2"
-          hide-details
           auto-grow
+          hide-details
+          color="primary"
+          class="mb-2"
         ></v-textarea>
-        <div class="d-flex ga-2 mt-2">
+        <div class="d-flex ga-2">
           <v-btn
             size="small"
             color="primary"
@@ -62,34 +76,47 @@
           <v-btn
             size="small"
             variant="text"
+            color="grey-darken-1"
             @click="cancelReply"
           >
             Cancel
           </v-btn>
         </div>
       </div>
-    </div>
 
-    <!-- Nested Replies -->
-    <div v-if="comment.replies && comment.replies.length > 0" class="replies">
-      <Comment
-        v-for="reply in comment.replies"
-        :key="reply.id"
-        :comment="reply"
-        :is-parent="false"
-        @reply-added="handleReplyAdded"
-      />
+      <div v-if="comment.replies && comment.replies.length > 0" class="replies">
+        <Comment
+          v-for="reply in comment.replies"
+          :key="reply.id"
+          :comment="reply"
+          :is-parent="false"
+          class="mt-4"
+        />
+      </div>
     </div>
   </div>
+
+  <v-dialog v-model="dialog" max-width="800">
+    <v-card>
+      <v-img :src="selectedImage" contain></v-img>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" variant="text" @click="dialog = false">Close</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { addComment } from '@/utils/commentUtils';
 
-const {comment} = defineProps({
+dayjs.extend(relativeTime);
+
+const { comment } = defineProps({
   comment: {
     type: Object,
     required: true
@@ -104,6 +131,8 @@ const emit = defineEmits(['reply-added']);
 
 const showReplyForm = ref(false);
 const replyContent = ref('');
+const dialog = ref(false);
+const selectedImage = ref(null);
 const defaultAvatar = 'https://eu.ui-avatars.com/api/?name=User&size=64';
 
 const toggleReply = () => {
@@ -136,51 +165,30 @@ const handleReplyAdded = async () => {
   showReplyForm.value = false
   replyContent.value = ''
 };
+
+const showImage = (imageUrl) => {
+  selectedImage.value = imageUrl;
+  dialog.value = true;
+};
 </script>
 
 <style scoped>
-.comment {
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+.comment-item {
+  padding: 16px 0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-.comment:last-child {
+.comment-item:last-child {
   border-bottom: none;
 }
 
 .is-reply {
-  margin-left: 32px;
-  padding-left: 12px;
+  padding: 16px 0;
+}
+
+.comment-children {
   border-left: 2px solid #e0e0e0;
-}
-
-.comment-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.comment-author {
-  font-size: 0.875rem;
-}
-
-.comment-time {
-  font-size: 0.75rem;
-}
-
-.comment-text {
-  line-height: 1.4;
-  margin: 0;
-}
-
-.comment-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.replies {
-  margin-top: 16px;
+  padding-left: 16px;
 }
 
 .reply-form {
