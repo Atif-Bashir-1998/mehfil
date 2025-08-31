@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -49,5 +50,21 @@ class User extends Authenticatable implements MustVerifyEmail
     public function posts()
     {
         return $this->hasMany(Post::class, 'created_by');
+    }
+
+    /**
+     * Get the profile image for the user.
+     */
+    public function profileImage(): HasOne
+    {
+        return $this->hasOne(Image::class, 'id', 'profile_image_id');
+    }
+
+    /**
+     * Get the cover image for the user.
+     */
+    public function coverImage(): HasOne
+    {
+        return $this->hasOne(Image::class, 'id', 'cover_image_id');
     }
 }
