@@ -53,7 +53,7 @@ const deletePost = (postId) => {
   <Head :title="post.title" />
 
   <DashboardLayout>
-    <v-container class="my-8" style="max-width: 900px">
+    <v-container class="my-8">
       <v-card class="mx-auto pa-6 mb-8" rounded="lg" elevation="4">
         <v-card-title class="pa-0 mb-4">
           <h1 class="text-h4 font-weight-bold text-blue-grey-darken-4">{{ post.title }}</h1>
@@ -172,7 +172,7 @@ const deletePost = (postId) => {
           </v-form>
 
           <div v-if="post.comments && post.comments.length > 0">
-            <Comment v-for="comment in post.comments" :key="comment.id" :comment="comment" :is-parent="true" />
+            <Comment v-for="comment in post.comments" :key="comment.id" :comment="comment" />
           </div>
 
           <div v-else class="text-center text-medium-emphasis py-8">

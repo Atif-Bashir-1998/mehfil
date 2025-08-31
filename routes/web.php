@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReactionController;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -32,6 +34,13 @@ Route::group([
             ])
         ]);
     })->name('user.show');
+
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notification.index');
+        Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'mark_all_as_read'])->name('notification.mark-all-as-read');
+        Route::post('/notifications/{notification}/mark-as-read', [NotificationController::class, 'mark_as_read'])->name('notification.mark-as-read');
+        Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notification.destroy');
+    });
 
     // Reactions routes
     Route::post('/post/{post}/reactions', [ReactionController::class, 'store'])->name('post.reactions.store');

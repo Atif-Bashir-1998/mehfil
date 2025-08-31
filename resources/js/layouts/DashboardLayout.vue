@@ -18,9 +18,60 @@
             <v-icon>mdi-chat</v-icon>
           </v-btn>
 
-          <v-btn icon variant="tonal" class="mr-2" title="Notifications">
-            <v-icon>mdi-bell</v-icon>
-          </v-btn>
+          <v-menu offset="12" :close-on-content-click="false">
+            <template v-slot:activator="{ props }">
+              <v-badge :content="unreadNotificationCount" :model-value="unreadNotificationCount > 0" color="error" class="mr-2">
+                <v-btn icon variant="tonal" v-bind="props" title="Notifications">
+                  <v-icon>mdi-bell</v-icon>
+                </v-btn>
+              </v-badge>
+            </template>
+
+            <v-card min-width="350">
+              <v-list>
+                <v-list-item class="d-flex justify-space-between align-center">
+                  <v-list-item-title class="font-weight-bold text-h6"> Notifications </v-list-item-title>
+                  <v-btn v-if="unreadNotificationCount > 0" variant="text" color="primary" size="x-small" @click="markAllAsRead">
+                    Mark all as read
+                  </v-btn>
+                </v-list-item>
+
+                <template v-if="latestNotifications.length">
+                  <v-list-item
+                    v-for="notification in latestNotifications"
+                    :key="notification.id"
+                    :class="{ 'bg-grey-lighten-4': notification.read_at === null }"
+                    class="border-b"
+                    :to="notification.data.link"
+                  >
+                    <v-list-item-title class="text-body-2 font-weight-regular text-wrap">
+                      {{ notification.data.message }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle class="mt-1">
+                      <div class="text-caption text-grey-darken-1">
+                        {{ dayjs(notification.created_at).fromNow() }}
+                      </div>
+                      <div class="d-flex align-center ga-2 mt-2">
+                        <v-btn v-if="!notification.read_at" variant="tonal" color="primary" size="x-small" @click.stop="markAsRead(notification.id)">
+                          Mark as Read
+                        </v-btn>
+                        <v-btn v-if="notification.data.post_id" variant="tonal" color="secondary" size="x-small" @click="viewPost(notification.data.post_id)"> Visit Post </v-btn>
+                      </div>
+                    </v-list-item-subtitle>
+                  </v-list-item>
+                </template>
+                <v-list-item v-else>
+                  <v-list-item-subtitle class="text-medium-emphasis py-4 text-center"> You have no new notifications. </v-list-item-subtitle>
+                </v-list-item>
+              </v-list>
+
+              <v-divider></v-divider>
+
+              <v-card-actions>
+                <v-btn text block color="primary" @click="viewAllNotifications"> View All </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-menu>
 
           <v-menu>
             <template v-slot:activator="{ props }">
@@ -83,20 +134,41 @@
 import Logo from '@/assets/images/logo.png';
 import { handleLogout } from '@/utils/logout';
 import { router, usePage } from '@inertiajs/vue3';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { onMounted, ref } from 'vue';
 import { route } from 'ziggy-js';
+import { markAllAsRead, markAsRead } from '@/utils/notificationUtils';
+
+dayjs.extend(relativeTime);
+
+const { user } = usePage().props.auth;
+const notifications = usePage().props.notifications;
+
+const latestNotifications = ref(notifications.latest);
+const unreadNotificationCount = ref(notifications.unread_count);
 
 const theme = ref('light');
 const drawer = ref(true);
 const snackbarNotifications = ref([]);
-
-const { user } = usePage().props.auth;
 
 // Toggle between light and dark themes
 const toggleTheme = () => {
   theme.value = theme.value === 'light' ? 'dark' : 'light';
   localStorage.setItem('theme', theme.value);
 };
+
+const viewAllNotifications = () => {
+  let url = route('notification.index');
+
+  router.visit(url);
+};
+
+const viewPost = (postId) => {
+  let url = route('post.show', { post: postId })
+
+  router.visit(url)
+}
 
 // Load saved theme preference on component mount
 onMounted(() => {
@@ -110,6 +182,9 @@ onMounted(() => {
       snackbarNotifications.value.push(notification.message);
       console.log({ notification });
       router.reload();
+
+      // Update the unread count in real-time
+      unreadNotificationCount.value++;
     });
   }
 });
