@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Comment;
 use App\Models\Post;
+use App\Notifications\NewComment;
 use App\Utils\ImageHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,6 +40,8 @@ class CommentController extends Controller
                 'path' => $webp_path
             ]);
         }
+
+        $post->creator->notify(new NewComment($post, $request->user()));
 
         return redirect()->back()->with('success', 'Comment added successfully!');
     }

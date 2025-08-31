@@ -4,11 +4,7 @@
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 
       <v-app-bar-title>
-        <v-img
-          :width="60"
-          cover
-          :src="Logo"
-        ></v-img>
+        <v-img :width="60" cover :src="Logo"></v-img>
       </v-app-bar-title>
 
       <template v-slot:append>
@@ -43,20 +39,28 @@
           </v-menu>
         </template>
         <template v-else>
-          <v-btn variant="outlined" color="secondary" class="mr-2">
-            Login
-          </v-btn>
-          <v-btn variant="flat" color="primary" class="mr-2">
-            Signup
-          </v-btn>
+          <v-btn variant="outlined" color="secondary" class="mr-2"> Login </v-btn>
+          <v-btn variant="flat" color="primary" class="mr-2"> Signup </v-btn>
         </template>
       </template>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" app>
       <v-list>
-        <v-list-item :href="route('post.index')" prepend-icon="mdi-rss" title="Feed" :active="route().current() === 'post.index'" color="primary"></v-list-item>
-        <v-list-item :href="route('post.create')" prepend-icon="mdi-pencil" title="Create a post" :active="['post.create', 'post.edit'].includes(route().current())" color="primary"></v-list-item>
+        <v-list-item
+          :href="route('post.index')"
+          prepend-icon="mdi-rss"
+          title="Feed"
+          :active="route().current() === 'post.index'"
+          color="primary"
+        ></v-list-item>
+        <v-list-item
+          :href="route('post.create')"
+          prepend-icon="mdi-pencil"
+          title="Create a post"
+          :active="['post.create', 'post.edit'].includes(route().current())"
+          color="primary"
+        ></v-list-item>
       </v-list>
 
       <template v-slot:append>
@@ -70,21 +74,23 @@
       <v-container fluid class="pa-4">
         <slot />
       </v-container>
+      <v-snackbar-queue v-model="snackbarNotifications" color="primary" timeout="8000"></v-snackbar-queue>
     </v-main>
   </v-app>
 </template>
 
 <script setup>
 import Logo from '@/assets/images/logo.png';
+import { handleLogout } from '@/utils/logout';
 import { usePage } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
-import { handleLogout } from '@/utils/logout';
 import { route } from 'ziggy-js';
 
 const theme = ref('light');
 const drawer = ref(true);
+const snackbarNotifications = ref([]);
 
-const { user } = usePage().props.auth
+const { user } = usePage().props.auth;
 
 // Toggle between light and dark themes
 const toggleTheme = () => {
@@ -97,6 +103,13 @@ onMounted(() => {
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme) {
     theme.value = savedTheme;
+  }
+
+  if (user && window.Echo) {
+    window.Echo.private(`App.Models.User.${user.id}`).notification((notification) => {
+      snackbarNotifications.value.push(notification.message);
+      console.log({ notification });
+    });
   }
 });
 </script>
