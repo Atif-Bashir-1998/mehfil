@@ -183,13 +183,17 @@ const deletePost = (postId) => {
       </v-card>
     </v-container>
 
-    <v-dialog v-model="dialog" max-width="800">
+    <v-dialog v-model="dialog" fullscreen>
       <v-card>
         <v-img :src="selectedImage" contain></v-img>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" variant="text" @click="dialog = false">Close</v-btn>
-        </v-card-actions>
+        <v-btn
+          icon="mdi-close"
+          size="large"
+          color="white"
+          variant="flat"
+          style="position: absolute; top: 16px; right: 16px; z-index: 1;"
+          @click="dialog = false"
+        ></v-btn>
       </v-card>
     </v-dialog>
   </DashboardLayout>
