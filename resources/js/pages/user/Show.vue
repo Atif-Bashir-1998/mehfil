@@ -3,12 +3,32 @@ import PostCard from '@/components/PostCard.vue';
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import dayjs from 'dayjs';
 import { ref } from 'vue';
+import { router } from '@inertiajs/vue3';
 
 const activeTab = ref('posts');
+const dialogVisible = ref(false);
+const messageBody = ref('');
 
 const { user } = defineProps({
   user: Object,
 });
+
+const sendMessage = () => {
+  let url = route('message.start-conversation', { recipient: user.id });
+
+  router.post(
+    url,
+    {
+      body: messageBody.value,
+    },
+    {
+      onSuccess: () => {
+        dialogVisible.value = false;
+        messageBody.value = '';
+      },
+    },
+  );
+};
 </script>
 
 <template>
@@ -34,7 +54,18 @@ const { user } = defineProps({
         </div>
 
         <div class="pa-6 mt-8">
-          <div class="text-h4 font-weight-bold">{{ user.name }}</div>
+          <div class="d-flex justify-space-between align-center">
+            <div class="text-h4 font-weight-bold">{{ user.name }}</div>
+            <v-btn
+              color="primary"
+              variant="flat"
+              prepend-icon="mdi-send"
+              rounded="lg"
+              @click="dialogVisible = true"
+            >
+              Message
+            </v-btn>
+          </div>
           <div class="text-subtitle-1 text-medium-emphasis mt-2">No bio available.</div>
 
           <v-divider class="my-4"></v-divider>
@@ -120,6 +151,42 @@ const { user } = defineProps({
         </v-card-text>
       </v-card>
     </v-container>
+
+    <v-dialog v-model="dialogVisible" persistent max-width="600">
+      <v-card rounded="lg">
+        <v-card-title class="text-h5 font-weight-bold pa-4 border-b">
+          Send a Message to {{ user.name }}
+        </v-card-title>
+        <v-card-text class="py-6">
+          <v-textarea
+            v-model="messageBody"
+            label="Your message"
+            variant="outlined"
+            rows="3"
+            hide-details
+          ></v-textarea>
+        </v-card-text>
+        <v-card-actions class="pa-4 border-t d-flex justify-end ga-2">
+          <v-btn
+            color="grey-darken-1"
+            variant="text"
+            @click="dialogVisible = false"
+            rounded="lg"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            :disabled="!messageBody.trim()"
+            @click="sendMessage"
+            rounded="lg"
+          >
+            Send Message
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </DashboardLayout>
 </template>
 

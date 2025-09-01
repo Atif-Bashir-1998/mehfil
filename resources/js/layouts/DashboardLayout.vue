@@ -14,10 +14,6 @@
           </v-icon>
         </v-btn>
         <template v-if="usePage().props.auth.user">
-          <v-btn icon variant="tonal" class="mr-2" title="Messages">
-            <v-icon>mdi-chat</v-icon>
-          </v-btn>
-
           <v-menu offset="12" :close-on-content-click="false">
             <template v-slot:activator="{ props }">
               <v-badge :content="unreadNotificationCount" :model-value="unreadNotificationCount > 0" color="error" class="mr-2">
@@ -99,6 +95,13 @@
     <v-navigation-drawer v-model="drawer" app>
       <v-list>
         <v-list-item
+          :href="route('message.index')"
+          prepend-icon="mdi-email-open-outline"
+          title="Inbox"
+          :active="route().current() === 'message.index'"
+          color="primary"
+        ></v-list-item>
+        <v-list-item
           :href="route('post.index')"
           prepend-icon="mdi-rss"
           title="Feed"
@@ -116,6 +119,7 @@
 
       <template v-slot:append>
         <v-list>
+          <v-list-item @click="visitPrivacyPolicyPage" prepend-icon="mdi-script-text-outline" title="Privacy Policy"></v-list-item>
           <v-list-item @click="handleLogout" prepend-icon="mdi-logout" title="Logout" base-color="error"></v-list-item>
         </v-list>
       </template>
@@ -149,7 +153,7 @@ const latestNotifications = ref(notifications.latest);
 const unreadNotificationCount = ref(notifications.unread_count);
 
 const theme = ref('light');
-const drawer = ref(true);
+const drawer = ref(false);
 const snackbarNotifications = ref([]);
 
 // Toggle between light and dark themes
@@ -170,7 +174,12 @@ const viewPost = (postId) => {
   router.visit(url)
 }
 
-// Load saved theme preference on component mount
+const visitPrivacyPolicyPage = () => {
+  let url = route('privacy-policy');
+  router.visit(url)
+}
+
+// Load saved theme preference on component mount and listen for real-time notifications
 onMounted(() => {
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme) {
@@ -178,6 +187,7 @@ onMounted(() => {
   }
 
   if (user && window.Echo) {
+    // Listen for general user notifications
     window.Echo.private(`App.Models.User.${user.id}`).notification((notification) => {
       snackbarNotifications.value.push(notification.message);
       console.log({ notification });
@@ -185,6 +195,15 @@ onMounted(() => {
 
       // Update the unread count in real-time
       unreadNotificationCount.value++;
+    });
+
+    // Listen for new messages
+    window.Echo.private(`conversations.${user.id}`).listen('NewMessageSent', (e) => {
+        // Show a snackbar notification for the new message
+        snackbarNotifications.value.push('You have a new message from ' + e.message.user.name);
+
+        // Reload the page to update the conversation list on the sidebar
+        router.reload();
     });
   }
 });

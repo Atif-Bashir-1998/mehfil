@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReactionController;
@@ -39,12 +40,16 @@ Route::group([
         ]);
     })->name('user.show');
 
-    Route::middleware(['auth'])->group(function () {
-        Route::get('/notifications', [NotificationController::class, 'index'])->name('notification.index');
-        Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'mark_all_as_read'])->name('notification.mark-all-as-read');
-        Route::post('/notifications/{notification}/mark-as-read', [NotificationController::class, 'mark_as_read'])->name('notification.mark-as-read');
-        Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notification.destroy');
-    });
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notification.index');
+    Route::post('/notifications/mark-all-as-read', [NotificationController::class, 'mark_all_as_read'])->name('notification.mark-all-as-read');
+    Route::post('/notifications/{notification}/mark-as-read', [NotificationController::class, 'mark_as_read'])->name('notification.mark-as-read');
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notification.destroy');
+
+    Route::get('/message', [MessageController::class, 'index'])->name('message.index');
+    Route::get('/message/{conversation}', [MessageController::class, 'show'])->name('message.show');
+    Route::post('/message/{conversation}', [MessageController::class, 'store'])->name('message.store');
+    Route::post('/message/start/{recipient}', [MessageController::class, 'start_conversation'])->name('message.start-conversation');
+
 
     // Reactions routes
     Route::post('/post/{post}/reactions', [ReactionController::class, 'store'])->name('post.reactions.store');
