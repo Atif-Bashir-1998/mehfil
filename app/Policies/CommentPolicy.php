@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Comment;
 use App\Models\User;
+use App\Utils\RoleHelper;
 
 class CommentPolicy
 {
@@ -20,6 +21,11 @@ class CommentPolicy
      */
     public function delete(User $user, Comment $comment): bool
     {
-        return $user->id === $comment->user_id;
+        $allowed_role = $user->hasRole([
+            RoleHelper::DEFAULT_ROLES['ADMIN'],
+            RoleHelper::DEFAULT_ROLES['DEVELOPER'],
+            RoleHelper::DEFAULT_ROLES['MODERATOR']
+        ]);
+        return $user->id === $comment->user_id || $allowed_role;
     }
 }
