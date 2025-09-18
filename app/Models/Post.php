@@ -48,4 +48,9 @@ class Post extends Model
     {
         return $this->morphMany(Image::class, 'imageable')->orderBy('order');
     }
+
+    public function flags(): MorphMany
+    {
+        return $this->morphMany(Flag::class, 'flaggable');
+    }
 }

@@ -94,4 +94,14 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Message::class);
     }
+
+    public function flags(): MorphMany
+    {
+        return $this->morphMany(Flag::class, 'flaggable');
+    }
+
+    public function flaggedItems(): HasMany
+    {
+        return $this->hasMany(Flag::class, 'flagged_by');
+    }
 }
