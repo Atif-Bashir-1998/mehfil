@@ -93,8 +93,6 @@ const { comment } = defineProps({
   },
 });
 
-const emit = defineEmits(['reply-added']);
-
 const showReplyForm = ref(false);
 const replyContent = ref('');
 const dialog = ref(false);
@@ -122,7 +120,7 @@ const deleteComment = () => {
 };
 
 const handleReplyAdded = async () => {
-  let payload = {
+  const payload = {
     parent_id: comment.id,
     content: replyContent.value,
   };

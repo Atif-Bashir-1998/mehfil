@@ -1,7 +1,7 @@
 <script setup>
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import { Head, usePage } from '@inertiajs/vue3';
-import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, onUnmounted, nextTick } from 'vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import axios from 'axios';

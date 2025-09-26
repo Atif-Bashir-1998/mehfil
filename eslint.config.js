@@ -13,6 +13,13 @@ export default defineConfigWithVueTs(
         rules: {
             'vue/multi-word-component-names': 'off',
             '@typescript-eslint/no-explicit-any': 'off',
+            "vue/block-lang": ["error",
+              {
+                "script": {
+                  "lang": "js"
+                }
+              }
+            ]
         },
     },
     prettier,

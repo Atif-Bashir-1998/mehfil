@@ -14,7 +14,7 @@ const { user } = defineProps({
 });
 
 const sendMessage = () => {
-  let url = route('message.start-conversation', { recipient: user.id });
+  const url = route('message.start-conversation', { recipient: user.id });
 
   router.post(
     url,

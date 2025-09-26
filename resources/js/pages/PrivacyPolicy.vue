@@ -117,7 +117,7 @@
         </p>
         <v-list dense>
           <v-list-item>
-            <template #prepend><v-icon>mdi-email-outline</v-icon></template>
+            <template #prepend>j"<v-icon>mdi-email-outline</v-icon></template>
             <template #default>
               <v-list-item-title>By email: <a href="mailto:privacy@example.com">privacy@example.com</a></v-list-item-title>
             </template>
@@ -127,8 +127,6 @@
     </v-card>
   </v-container>
 </template>
-
-<script setup></script>
 
 <style scoped>
 .my-8 {
