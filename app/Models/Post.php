@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Facades\Auth;
 
 class Post extends Model
 {
@@ -20,6 +21,22 @@ class Post extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
+
+    protected $appends = ['is_flagged_by_current_user'];
+
+    public function getIsFlaggedByCurrentUserAttribute()
+    {
+        if (!Auth::check()) {
+            return false;
+        }
+
+        $user_id = Auth::id();
+
+        return $this->flags()
+            ->where('flagged_by', $user_id)
+            ->where('status', 'pending') // Optional: only consider pending flags
+            ->exists();
+    }
 
     public function creator()
     {

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\FlagController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PostController;
@@ -59,6 +60,8 @@ Route::group([
     Route::post('/post/{post}/comment', [CommentController::class, 'store'])->name('post.comment.store');
     Route::put('/comment/{comment}', [CommentController::class, 'update'])->name('comment.update');
     Route::delete('/comment/{comment}', [CommentController::class, 'destroy'])->name('comment.destroy');
+
+    Route::post('/flag', [FlagController::class, 'store'])->name('flag.store');
 });
 
 require __DIR__ . '/settings.php';

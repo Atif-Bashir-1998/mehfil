@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('flags', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->morphs('flaggable'); // Polymorphic relation for post, comment, or user
+            $table->uuidMorphs('flaggable'); // Polymorphic relation for post, comment, or user
             $table->foreignId('flagged_by')->constrained('users')->onDelete('cascade');
             $table->text('reason');
             $table->string('status')->default('pending'); // pending, reviewed, resolved

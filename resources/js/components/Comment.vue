@@ -23,6 +23,8 @@
           <div class="d-flex ga-2">
             <v-btn size="x-small" variant="text" color="primary" prepend-icon="mdi-reply" class="text-caption" @click="toggleReply"> Reply </v-btn>
 
+            <ReportButton v-if="!comment.is_flagged_by_current_user" :flaggableId="comment.id" flaggableType="comment" />
+
             <v-btn
               v-if="$page.props.auth.user?.id === comment.user_id"
               size="x-small"
@@ -74,6 +76,7 @@
 </template>
 
 <script setup>
+import ReportButton from './ReportButton.vue'
 import { addComment } from '@/utils/commentUtils';
 import { router } from '@inertiajs/vue3';
 import dayjs from 'dayjs';
