@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Support\Facades\Auth;
 
 class Comment extends Model
 {
@@ -18,6 +19,22 @@ class Comment extends Model
     use HasFactory, HasUuids;
 
     public $guarded = ['id'];
+
+    protected $appends = ['is_flagged_by_current_user'];
+
+    public function getIsFlaggedByCurrentUserAttribute()
+    {
+        if (!Auth::check()) {
+            return false;
+        }
+
+        $user_id = Auth::id();
+
+        return $this->flags()
+            ->where('flagged_by', $user_id)
+            ->where('status', 'pending') // Optional: only consider pending flags
+            ->exists();
+    }
 
     public function post(): BelongsTo
     {

@@ -101,7 +101,7 @@
           <v-icon size="small" class="mr-1">mdi-comment</v-icon>
           {{ post.all_comments_count }}
         </div>
-        <div v-if="usePage().props.auth.user?.id !== post.creator.id">
+        <div v-if="usePage().props.auth.user?.id !== post.creator.id && !post.is_flagged_by_current_user">
           <ReportButton :flaggableId="post.id" flaggableType="post" />
         </div>
       </div>
