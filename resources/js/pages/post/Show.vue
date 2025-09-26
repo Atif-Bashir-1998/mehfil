@@ -30,7 +30,7 @@ const showImage = (imageUrl) => {
 };
 
 const handleAddComment = () => {
-  let payload = {
+  const payload = {
     parent_id: null,
     content: form.content,
     image: form.image

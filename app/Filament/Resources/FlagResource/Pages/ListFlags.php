@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Filament\Resources\FlagResource\Pages;
+
+use App\Filament\Resources\FlagResource;
+use Filament\Actions;
+use Filament\Resources\Pages\ListRecords;
+
+class ListFlags extends ListRecords
+{
+    protected static string $resource = FlagResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\CreateAction::make(),
+        ];
+    }
+}

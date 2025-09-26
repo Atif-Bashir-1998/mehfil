@@ -23,3 +23,5 @@ yarn-error.log
 /.vscode
 /.zed
 /ai/hate-speech-detector/src/
+public/js/filament
+public/css/filament

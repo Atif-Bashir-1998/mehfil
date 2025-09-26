@@ -10,11 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Hasroles;
 
     /**
      * The attributes that are mass assignable.
@@ -92,5 +93,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
+    }
+
+    public function flags(): MorphMany
+    {
+        return $this->morphMany(Flag::class, 'flaggable');
+    }
+
+    public function flaggedItems(): HasMany
+    {
+        return $this->hasMany(Flag::class, 'flagged_by');
     }
 }

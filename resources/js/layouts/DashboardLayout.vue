@@ -163,19 +163,19 @@ const toggleTheme = () => {
 };
 
 const viewAllNotifications = () => {
-  let url = route('notification.index');
+  const url = route('notification.index');
 
   router.visit(url);
 };
 
 const viewPost = (postId) => {
-  let url = route('post.show', { post: postId })
+  const url = route('post.show', { post: postId })
 
   router.visit(url)
 }
 
 const visitPrivacyPolicyPage = () => {
-  let url = route('privacy-policy');
+  const url = route('privacy-policy');
   router.visit(url)
 }
 

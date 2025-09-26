@@ -7,12 +7,12 @@ import { markAsRead, markAllAsRead, removeNotification } from '../utils/notifica
 
 dayjs.extend(relativeTime);
 
-const props = defineProps({
+defineProps({
   notifications: Object,
 });
 
 const viewPost = (notification) => {
-  let url = route('post.show', { post: notification.data.post_id });
+  const url = route('post.show', { post: notification.data.post_id });
   router.visit(url)
 }
 
