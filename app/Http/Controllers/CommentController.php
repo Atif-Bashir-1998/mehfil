@@ -6,6 +6,7 @@ use App\Models\Comment;
 use App\Models\Post;
 use App\Notifications\CommentReplied;
 use App\Notifications\NewComment;
+use App\Rules\HateSpeech;
 use App\Utils\ImageHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,7 @@ class CommentController extends Controller
     public function store(Request $request, Post $post)
     {
         $request->validate([
-            'content' => ['required', 'string', 'max:1000'],
+            'content' => ['required', 'string', 'max:1000', new HateSpeech],
             'parent_id' => ['nullable', 'exists:comments,id'],
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
@@ -61,7 +62,7 @@ class CommentController extends Controller
         Gate::authorize('update', $comment);
 
         $validated = $request->validate([
-            'content' => ['required', 'string', 'max:1000'],
+            'content' => ['required', 'string', 'max:1000', new HateSpeech],
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'remove_image' => 'nullable|boolean' // Flag to remove existing image
         ]);

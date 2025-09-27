@@ -201,7 +201,7 @@ onMounted(() => {
                     :key="index"
                     closable
                     variant="tonal"
-                    color="green-darken-1"
+                    :color="form.errors[`tags.${index}`] ? 'error' : 'green-darken-1'"
                     @click:close="removeTag(index)"
                   >
                     {{ tag }}
@@ -209,6 +209,13 @@ onMounted(() => {
                 </div>
                 <div v-if="form.errors.tags" class="text-caption text-error mt-2">
                   {{ form.errors.tags }}
+                </div>
+
+                <!-- Show individual tag errors -->
+                <div v-for="(error, index) in form.errors" :key="index" class="text-caption text-error mt-2">
+                  <div v-if="index.startsWith('tags.')">
+                    {{ error }}
+                  </div>
                 </div>
               </v-card>
             </v-col>

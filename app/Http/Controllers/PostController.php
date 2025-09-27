@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\ReactionType;
 use App\Models\Image;
 use App\Models\Post;
+use App\Rules\HateSpeech;
 use App\Utils\ImageHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -52,8 +53,8 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
+            'title' => ['required', 'string', 'max:255', new HateSpeech],
+            'content' => ['required', 'string', new HateSpeech],
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
             'images' => 'nullable|array|max:10',
@@ -117,10 +118,11 @@ class PostController extends Controller
     {
         // First, validate the incoming request data
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
+            'title' => ['required', 'string', 'max:255', new HateSpeech],
+            'content' => ['required', 'string', new HateSpeech],
             'tags' => 'nullable|array',
-            'tags.*' => 'string|max:50',
+            // 'tags.*' => 'string|max:50',
+            'tags.*' => ['string', 'max:50', new HateSpeech],
             // Rule for new images being uploaded
             'images' => 'nullable|array|max:10',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
