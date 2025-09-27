@@ -1,0 +1,8 @@
+name: hate-speech-api
+dependencies:
+  - python=3.9
+  - numpy
+  - scikit-learn
+  - flask
+  - nltk
+  - joblib

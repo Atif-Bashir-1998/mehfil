@@ -1,20 +1,18 @@
-FROM continuumio/miniconda3:4.12.0
+FROM continuumio/miniconda3:latest
 
 WORKDIR /app
 
 COPY environment.yml .
-
 RUN conda env create -f environment.yml
 
-# Initialize conda and activate environment
-RUN echo "source activate flask-hate-speech-api" > ~/.bashrc
-ENV PATH /opt/conda/envs/flask-hate-speech-api/bin:$PATH
+SHELL ["conda", "run", "-n", "hate-speech-api", "/bin/bash", "-c"]
 
-# Download NLTK data
-RUN python -m nltk.downloader punkt stopwords wordnet
+# Install ALL required NLTK data
+RUN python -c "import nltk; nltk.download('punkt_tab'); nltk.download('punkt'); nltk.download('stopwords')"
 
 COPY . .
 
-EXPOSE 5000
+# EXPOSE 8000
+# ENV PORT=8000
 
-CMD ["python3", "api.py"]
+CMD ["conda", "run", "-n", "hate-speech-api", "python", "app.py"]

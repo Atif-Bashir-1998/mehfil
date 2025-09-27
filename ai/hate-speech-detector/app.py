@@ -6,6 +6,10 @@ from src.utils import preprocess_and_tokenize
 
 app = Flask(__name__)
 
+print("Current directory:", os.getcwd())
+print("Files in src/data/tfidf_embeddings:", os.listdir("src/data/tfidf_embeddings") if os.path.exists("src/data/tfidf_embeddings") else "Directory not found")
+print("Files in src/models:", os.listdir("src/models") if os.path.exists("src/models") else "Directory not found")
+
 # Load models
 try:
     # Use absolute paths for better container compatibility

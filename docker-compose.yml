@@ -24,5 +24,25 @@ services:
     ports:
       - '9000:80'
 
+  hate-speech-api:
+    build:
+      context: ./ai/hate-speech-detector
+      dockerfile: Dockerfile
+    ports:
+      - '6000:6000'
+    environment:
+      - PORT=6000
+    restart: unless-stopped
+
+  ocr-api:
+    build:
+      context: ./ai/ocr-model
+      dockerfile: Dockerfile
+    ports:
+    - '5000:5000'  # host:container
+    environment:
+      - PORT=5000    # Set the container port
+    restart: unless-stopped
+
 volumes:
   mysql_data:
