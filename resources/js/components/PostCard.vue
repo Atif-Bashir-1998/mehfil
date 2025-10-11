@@ -22,13 +22,6 @@
         <v-list density="compact">
           <v-list-item prepend-icon="mdi-pencil" :href="route('post.edit', post.id)" title="Edit" />
           <v-list-item prepend-icon="mdi-delete" @click="deletePost(post.id)" title="Delete" />
-          <!-- Flag option for all users (except post owner) -->
-          <!-- <v-list-item
-            v-if="usePage().props.auth.user?.id !== post.creator.id"
-            prepend-icon="mdi-flag"
-            @click="openFlagDialog"
-            title="Report Post"
-          /> -->
         </v-list>
       </v-menu>
     </div>
@@ -51,7 +44,7 @@
           <v-img
             :src="post.images[0].image_url"
             alt="Post Image"
-            cover
+            contain
             class="rounded-lg"
             height="300"
           ></v-img>

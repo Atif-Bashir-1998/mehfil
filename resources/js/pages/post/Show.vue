@@ -80,7 +80,7 @@ const deletePost = (postId) => {
                 v-for="(image, index) in post.images"
                 :key="index"
                 :src="image.image_url"
-                cover
+                contain
                 @click="showImage(image.image_url)"
                 class="cursor-pointer"
               ></v-carousel-item>

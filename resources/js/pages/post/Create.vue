@@ -283,7 +283,7 @@ onMounted(() => {
                 class="bg-blue-grey-lighten-5 rounded-lg elevation-2 mt-4"
                 height="350"
               >
-                <v-carousel-item v-for="(image, index) in imagePreviews" :key="index" :src="image.url" cover>
+                <v-carousel-item v-for="(image, index) in imagePreviews" :key="index" :src="image.url" contain>
                   <div class="d-flex fill-height align-start pa-2 justify-end">
                     <v-btn
                       color="error"
