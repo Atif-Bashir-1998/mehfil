@@ -1,6 +1,6 @@
 <script setup>
 import DashboardLayout from '@/layouts/DashboardLayout.vue';
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime'
 import Comment from '@/components/Comment.vue';
@@ -144,7 +144,7 @@ const deletePost = (postId) => {
               rows="3"
               variant="outlined"
               color="primary"
-              :error-messages="form.errors.content"
+              :error-messages="usePage().props.errors?.content"
               required
             ></v-textarea>
 
@@ -156,7 +156,7 @@ const deletePost = (postId) => {
               variant="outlined"
               density="compact"
               class="my-4"
-              :error-messages="form.errors.image"
+              :error-messages="usePage().props.errors?.image"
             ></v-file-input>
 
             <v-btn

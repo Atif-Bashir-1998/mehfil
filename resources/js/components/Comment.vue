@@ -50,6 +50,7 @@
             hide-details
             color="primary"
             class="mb-2"
+            :error-messages="usePage().props.errors?.content"
           ></v-textarea>
           <div class="d-flex ga-2">
             <v-btn size="small" color="primary" variant="flat" @click="handleReplyAdded" :disabled="!replyContent.trim()"> Post Reply </v-btn>
@@ -78,7 +79,7 @@
 <script setup>
 import ReportButton from './ReportButton.vue'
 import { addComment } from '@/utils/commentUtils';
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { ref } from 'vue';

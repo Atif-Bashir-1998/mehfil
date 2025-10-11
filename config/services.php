@@ -38,6 +38,11 @@ return [
     'hate_speech_api' => [
         'url' => env('HATE_SPEECH_API_URL'),
         'port' => env('HATE_SPEECH_API_PORT')
+    ],
+
+    'ocr_api' => [
+        'url' => env('OCR_API_URL'),
+        'port' => env('OCR_API_PORT')
     ]
 
 ];

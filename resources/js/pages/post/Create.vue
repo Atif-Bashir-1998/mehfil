@@ -262,6 +262,12 @@ onMounted(() => {
                 <div v-if="form.errors.images" class="text-caption text-error mt-2">
                   {{ form.errors.images }}
                 </div>
+
+                <div v-for="index in (form.images ? form.images.length : 0)" :key="index" class="text-caption text-error mt-2">
+                <div v-if="form.errors[`images.${index-1}`]">
+                  Error with image#{{ index }}: {{ form.errors[`images.${index-1}`] }}
+                </div>
+              </div>
               </v-card>
             </v-col>
           </v-row>

@@ -3,17 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ReactionType;
-use App\Models\Image;
 use App\Models\Post;
 use App\Rules\HateSpeech;
+use App\Rules\ImageHateSpeech;
 use App\Utils\ImageHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class PostController extends Controller
@@ -56,9 +53,9 @@ class PostController extends Controller
             'title' => ['required', 'string', 'max:255', new HateSpeech],
             'content' => ['required', 'string', new HateSpeech],
             'tags' => 'nullable|array',
-            'tags.*' => 'string|max:50',
+            'tags.*' => ['string', 'max:50', new HateSpeech],
             'images' => 'nullable|array|max:10',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'images.*' => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048', new ImageHateSpeech],
         ]);
 
         $post = $request->user()->posts()->create($validated);
@@ -121,11 +118,10 @@ class PostController extends Controller
             'title' => ['required', 'string', 'max:255', new HateSpeech],
             'content' => ['required', 'string', new HateSpeech],
             'tags' => 'nullable|array',
-            // 'tags.*' => 'string|max:50',
             'tags.*' => ['string', 'max:50', new HateSpeech],
             // Rule for new images being uploaded
             'images' => 'nullable|array|max:10',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048', new ImageHateSpeech],
             // Rule for images to be deleted
             'deleted_image_ids' => 'nullable|array',
             'deleted_image_ids.*' => 'uuid|exists:images,id',
