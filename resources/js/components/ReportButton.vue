@@ -37,6 +37,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import axios from 'axios';
+import { useToast } from 'vue-toastification';
 
 const props = defineProps({
   flaggableType: {
@@ -51,6 +52,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['reported']);
+
+const toast = useToast();
 
 const flagDialog = ref(false);
 const flagReason = ref('');
@@ -98,8 +101,7 @@ const submitFlag = async () => {
     });
 
     if (response.data.success) {
-      // Show success message
-      alert(`${itemType.value} reported successfully. Thank you for helping keep our community safe.`);
+      toast.success(`${itemType.value} reported successfully. Thank you for helping keep our community safe.`);
       emit('reported');
       closeFlagDialog();
     }
@@ -107,9 +109,9 @@ const submitFlag = async () => {
     console.error('Error reporting item:', error);
 
     if (error.response?.data?.message) {
-      alert(error.response.data.message);
+      toast.error(error.response.data.message);
     } else {
-      alert('There was an error reporting this item. Please try again.');
+      toast.error('There was an error reporting this item. Please try again.');
     }
   } finally {
     loading.value = false;
