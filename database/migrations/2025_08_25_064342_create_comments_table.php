@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->uuid('parent_id')->nullable(); // For replies
             $table->text('content');
+            $table->boolean('is_hidden')->default(false);
             $table->timestamps();
 
             $table->foreign('parent_id')->references('id')->on('comments')->onDelete('cascade');

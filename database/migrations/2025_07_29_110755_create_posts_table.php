@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('title');
             $table->longText('content');
             $table->json('tags')->nullable();
+            $table->boolean('is_hidden')->default(false);
             $table->timestamps();
         });
     }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->uuidMorphs('imageable'); // Polymorphic relation
             $table->string('path');
             $table->integer('order')->default(0);
+            $table->boolean('is_hidden')->default(false);
             $table->timestamps();
         });
     }
