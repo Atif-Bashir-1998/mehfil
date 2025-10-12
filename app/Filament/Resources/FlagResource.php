@@ -17,6 +17,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class FlagResource extends Resource
@@ -140,13 +141,15 @@ class FlagResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                SelectColumn::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'reviewed' => 'Reviewed',
-                        'resolved' => 'Resolved',
-                    ])
-                    ->rules(['required']),
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'pending' => 'warning',
+                        'reviewed' => 'info',
+                        'resolved' => 'success',
+                        default => 'gray',
+                    })
+                    ->sortable(),
 
                 TextColumn::make('created_at')
                     ->label('Reported At')
