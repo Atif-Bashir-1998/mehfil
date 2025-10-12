@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Utils\RewardHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,6 +20,33 @@ class Comment extends Model
     public $guarded = ['id'];
 
     protected $appends = ['is_flagged_by_current_user'];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // AWARD POINTS on creation
+        static::created(function (Comment $comment) {
+            $points = RewardHelper::POINTS_COMMENT;
+            $postCreator = $comment->post->creator;
+
+            // Award points to the post creator, but only if they aren't commenting on their own post
+            if ($postCreator && $comment->user_id !== $postCreator->id) {
+                $postCreator->increment('points', $points);
+            }
+        });
+
+        // DEDUCT POINTS on deletion
+        static::deleted(function (Comment $comment) {
+            $points = RewardHelper::POINTS_COMMENT;
+            $postCreator = $comment->post->creator;
+
+            // Deduct points from the post creator
+            if ($postCreator && $comment->user_id !== $postCreator->id) {
+                $postCreator->decrement('points', $points);
+            }
+        });
+    }
 
     public function getIsFlaggedByCurrentUserAttribute()
     {
