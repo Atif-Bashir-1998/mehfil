@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->uuid('profile_image_id')->nullable()->after('password');
-            $table->uuid('cover_image_id')->nullable()->after('profile_image_id');
+            $table->foreignId('profile_image_id')->nullable()->after('password');
+            $table->foreignId('cover_image_id')->nullable()->after('profile_image_id');
 
             $table->foreign('profile_image_id')->references('id')->on('images')->onDelete('set null');
             $table->foreign('cover_image_id')->references('id')->on('images')->onDelete('set null');

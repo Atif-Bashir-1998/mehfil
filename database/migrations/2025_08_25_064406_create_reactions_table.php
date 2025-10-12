@@ -13,8 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('reactions', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignUuid('post_id')->constrained()->onDelete('cascade');
+            $table->id();
+            $table->foreignId('post_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->enum('type', ReactionType::values());
             $table->timestamps();

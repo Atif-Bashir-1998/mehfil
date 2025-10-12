@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('images', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuidMorphs('imageable'); // Polymorphic relation
+            $table->id();
+            $table->morphs('imageable'); // Polymorphic relation
             $table->string('path');
             $table->integer('order')->default(0);
             $table->boolean('is_hidden')->default(false);

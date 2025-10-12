@@ -51,7 +51,6 @@ class PostSeeder extends Seeder
 
                 foreach ($reactedUsers as $user) {
                     Reaction::create([
-                        'id' => Str::uuid(),
                         'post_id' => $post->id,
                         'user_id' => $user->id,
                         'type' => ReactionType::cases()[array_rand(ReactionType::cases())]->value,
