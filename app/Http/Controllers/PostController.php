@@ -27,14 +27,19 @@ class PostController extends Controller
             ->with(['reactions' => function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             }])
-            // exclude posts where 'is_hidden' is true
+            // exclude posts where the post's 'is_hidden' is true
             ->where('is_hidden', false)
+
+            // NEW: Exclude posts whose creator (user) has 'is_hidden' set to true
+            ->whereHas('creator', function ($query) {
+                $query->where('is_hidden', false);
+            })
+
             // exclude posts that the current user has flagged with a 'pending' status
             ->whereDoesntHave('flags', function ($query) use ($user) {
                 $query->where('flagged_by', $user->id) // flagged by the current user
                     ->where('status', 'pending');     // status is pending
             })
-
             ->latest()
             ->paginate(15);
 
