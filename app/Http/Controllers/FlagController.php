@@ -12,7 +12,7 @@ class FlagController extends Controller
     {
         $request->validate([
             'flaggable_type' => 'required|string|in:App\Models\Post,App\Models\Comment,App\Models\User',
-            'flaggable_id' => 'required|uuid',
+            'flaggable_id' => 'required',
             'reason' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);

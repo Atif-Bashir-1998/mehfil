@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('flags', function (Blueprint $table) {
-            // $table->uuid('id')->primary();
             $table->id();
             $table->morphs('flaggable');
             $table->foreignId('flagged_by')->constrained('users')->onDelete('cascade');
