@@ -19,6 +19,10 @@ Route::get('/privacy-policy', function () {
     return Inertia::render('PrivacyPolicy');
 })->name('privacy-policy');
 
+Route::get('/community-guidelines', function () {
+    return Inertia::render('CommunityGuidelines');
+})->name('community-guidelines');
+
 Route::group([
     'middleware' => ['auth', 'verified']
 ], function () {

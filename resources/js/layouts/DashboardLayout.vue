@@ -119,6 +119,7 @@
 
       <template v-slot:append>
         <v-list>
+          <v-list-item @click="visitCommunityGuidelinesPage" prepend-icon="mdi-list-status" title="Community Guidelines"></v-list-item>
           <v-list-item @click="visitPrivacyPolicyPage" prepend-icon="mdi-script-text-outline" title="Privacy Policy"></v-list-item>
           <v-list-item @click="handleLogout" prepend-icon="mdi-logout" title="Logout" base-color="error"></v-list-item>
         </v-list>
@@ -171,6 +172,11 @@ const viewAllNotifications = () => {
 const viewPost = (postId) => {
   const url = route('post.show', { post: postId })
 
+  router.visit(url)
+}
+
+const visitCommunityGuidelinesPage = () => {
+  const url = route('community-guidelines');
   router.visit(url)
 }
 
