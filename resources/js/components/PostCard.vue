@@ -62,7 +62,7 @@
               <v-img
                 :src="image.image_url"
                 :alt="`Image ${index + 1}`"
-                cover
+                contain
                 class="rounded-lg"
                 height="150"
               >
