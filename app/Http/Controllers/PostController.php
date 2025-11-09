@@ -18,33 +18,9 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $user = Auth::user();
-
-        $posts = Post::with(['creator:id,name', 'reactions', 'comments', 'all_comments', 'images'])
-            ->withCount(['reactions', 'all_comments'])
-            ->with(['reactions' => function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            }])
-            // exclude posts where the post's 'is_hidden' is true
-            ->where('is_hidden', false)
-
-            // NEW: Exclude posts whose creator (user) has 'is_hidden' set to true
-            ->whereHas('creator', function ($query) {
-                $query->where('is_hidden', false);
-            })
-
-            // exclude posts that the current user has flagged with a 'pending' status
-            ->whereDoesntHave('flags', function ($query) use ($user) {
-                $query->where('flagged_by', $user->id) // flagged by the current user
-                    ->where('status', 'pending');     // status is pending
-            })
-            ->latest()
-            ->paginate(15);
-
         return Inertia::render('post/Index', [
-            'posts' => $posts,
             'reaction_types' => ReactionType::all()
         ]);
     }
@@ -183,5 +159,28 @@ class PostController extends Controller
 
         return redirect()->route('dashboard')
             ->with('success', 'Post deleted successfully!');
+    }
+
+    public function get_posts(Request $request)
+    {
+        $user = Auth::user();
+
+        $posts = Post::with(['creator:id,name', 'reactions', 'comments', 'all_comments', 'images'])
+            ->withCount(['reactions', 'all_comments'])
+            ->with(['reactions' => function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            }])
+            ->where('is_hidden', false)
+            ->whereHas('creator', function ($query) {
+                $query->where('is_hidden', false);
+            })
+            ->whereDoesntHave('flags', function ($query) use ($user) {
+                $query->where('flagged_by', $user->id)
+                    ->where('status', 'pending');
+            })
+            ->latest()
+            ->paginate(15);
+
+        return response()->json($posts);
     }
 }
