@@ -100,9 +100,9 @@
       </div>
 
       <div class="d-flex align-center ga-2">
-        <v-btn variant="text" size="small" @click="toggleReaction">
+        <v-btn ref="menuActivator" variant="text" :active="userReaction" active-color="primary" size="small">
           <v-icon left>{{ userReaction ? userReaction.icon : 'mdi-emoticon-outline' }}</v-icon>
-          {{ post.reactions_count || 0 }}
+          {{ userReaction?.label }}
         </v-btn>
         <v-btn variant="text" size="small" :href="route('post.show', post.id)">
           <v-icon left>mdi-comment</v-icon>
@@ -114,24 +114,30 @@
       </div>
     </div>
 
-    <v-menu v-model="reactionMenu" :close-on-content-click="false">
+    <v-menu :activator="menuActivator" v-model="reactionMenu" :close-on-content-click="false" offset="5">
       <template v-slot:activator="{ props }">
         <div v-bind="props"></div>
       </template>
-      <v-card>
-        <v-card-text class="pa-2">
-          <div class="d-flex ga-1">
-            <v-btn
-              v-for="reaction in reactionTypes"
-              :key="reaction.value"
-              icon
-              :color="userReaction?.value === reaction.value ? 'primary' : ''"
-              @click="handleAddReaction(reaction)"
-            >
-              <v-icon>{{ reaction.icon }}</v-icon>
-            </v-btn>
-          </div>
-        </v-card-text>
+      <v-card class="pa-1" width="120">
+        <v-list density="compact" class="pa-0">
+          <v-list-item
+            v-for="reaction in reactionTypes"
+            :key="reaction.value"
+            class="px-2 py-1"
+            :active="post?.reactions[0]?.type === reaction.value"
+            active-color="primary"
+            @click="toggleReaction(reaction)"
+          >
+            <template #prepend>
+              <v-icon :color="userReaction?.value === reaction.value ? 'primary' : ''" size="small">
+                {{ reaction.icon }}
+              </v-icon>
+            </template>
+            <v-list-item-title class="text-caption">
+              {{ reaction.label }}
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
       </v-card>
     </v-menu>
   </v-card>
@@ -139,10 +145,10 @@
 
 <script setup>
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { addReaction } from '@/utils/reactionUtils';
+import { addReaction, removeReaction } from '@/utils/reactionUtils';
 import ReportButton from './ReportButton.vue';
 import dayjs from 'dayjs';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const { post } = defineProps({
   post: {
@@ -152,21 +158,40 @@ const { post } = defineProps({
 });
 
 const reactionMenu = ref(false);
-const userReaction = ref(null);
+const menuActivator = ref(null);
 const reactionTypes = usePage().props.reaction_types;
+
+const userReaction = computed(() => {
+  if (!post.reactions || post.reactions.length === 0) return null
+
+  const reactions = usePage().props.reaction_types
+  const userReactionType = post.reactions[0].type
+
+  return reactions.find(reaction => reaction.value === userReactionType) || null
+})
 
 const handleAddReaction = async (reaction) => {
   await addReaction(post.id, reaction.value)
   reactionMenu.value = false;
 }
 
-const toggleReaction = () => {
-  if (userReaction.value) {
-    userReaction.value = null;
-  } else {
-    reactionMenu.value = true;
+const handleRemoveReaction = async () => {
+  await removeReaction(post.id)
+  reactionMenu.value = false;
+}
+
+const toggleReaction = async (reaction) => {
+  if (!post.reactions) {
+    await handleAddReaction(reaction)
+    return;
   }
-};
+
+  if (post?.reactions[0]?.type === reaction.value) {
+    await handleRemoveReaction()
+  } else {
+    await handleAddReaction(reaction)
+  }
+}
 
 const deletePost = (postId) => {
   if (confirm('Are you sure you want to delete this post?')) {
