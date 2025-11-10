@@ -19,7 +19,8 @@ class PointConfigurationResource extends Resource
     protected static ?string $model = PointConfiguration::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-sparkles';
-    protected static ?string $navigationGroup = 'Management';
+    protected static ?string $modelLabel = 'Configuration';
+    protected static ?string $navigationGroup = 'Reward System';
 
     public static function form(Form $form): Form
     {

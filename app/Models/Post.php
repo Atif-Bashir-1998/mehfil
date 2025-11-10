@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PointType;
 use App\Services\PointsService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -31,7 +32,7 @@ class Post extends Model
         static::created(function (Post $post) {
             PointsService::awardPoints(
                 $post->creator,
-                'post_created',
+                PointType::CREATED_POST->value,
                 $post,
                 "Created post: {$post->title}"
             );
