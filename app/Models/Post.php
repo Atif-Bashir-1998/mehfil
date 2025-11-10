@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\PointsService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -22,6 +23,20 @@ class Post extends Model
     ];
 
     protected $appends = ['is_flagged_by_current_user'];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function (Post $post) {
+            PointsService::awardPoints(
+                $post->creator,
+                'post_created',
+                $post,
+                "Created post: {$post->title}"
+            );
+        });
+    }
 
     public function getIsFlaggedByCurrentUserAttribute()
     {

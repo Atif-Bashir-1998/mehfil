@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ReactionType;
+use App\Services\PointsService;
 use App\Utils\RewardHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,23 +26,22 @@ class Reaction extends Model
 
         // AWARD POINTS on creation
         static::created(function (Reaction $reaction) {
-            $points = RewardHelper::POINTS_REACTION;
-            $postCreator = $reaction->post->creator;
+            // Award points to reactor
+            PointsService::awardPoints(
+                $reaction->user,
+                'post_reacted',
+                $reaction,
+                "Reacted to post"
+            );
 
-            // Award points to the post creator, but only if they aren't reacting to their own post
-            if ($postCreator && $reaction->user_id !== $postCreator->id) {
-                $postCreator->increment('points', $points);
-            }
-        });
-
-        // DEDUCT POINTS on deletion
-        static::deleted(function (Reaction $reaction) {
-            $points = RewardHelper::POINTS_REACTION;
-            $postCreator = $reaction->post->creator;
-
-            // Deduct points from the post creator
-            if ($postCreator && $reaction->user_id !== $postCreator->id) {
-                $postCreator->decrement('points', $points);
+            // Award points to post author for receiving reaction (if not own post)
+            if ($reaction->user_id !== $reaction->post->created_by) {
+                PointsService::awardPoints(
+                    $reaction->post->creator,
+                    'reaction_received',
+                    $reaction,
+                    "Received reaction on post"
+                );
             }
         });
     }

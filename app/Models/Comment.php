@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\PointsService;
 use App\Utils\RewardHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,23 +28,30 @@ class Comment extends Model
 
         // AWARD POINTS on creation
         static::created(function (Comment $comment) {
-            $points = RewardHelper::POINTS_COMMENT;
-            $postCreator = $comment->post->creator;
+            // Award points to comment author
+            PointsService::awardPoints(
+                $comment->user,
+                $comment->parent_id ? 'comment_on_comment' : 'comment_created',
+                $comment,
+                "Commented on post"
+            );
 
-            // Award points to the post creator, but only if they aren't commenting on their own post
-            if ($postCreator && $comment->user_id !== $postCreator->id) {
-                $postCreator->increment('points', $points);
-            }
-        });
-
-        // DEDUCT POINTS on deletion
-        static::deleted(function (Comment $comment) {
-            $points = RewardHelper::POINTS_COMMENT;
-            $postCreator = $comment->post->creator;
-
-            // Deduct points from the post creator
-            if ($postCreator && $comment->user_id !== $postCreator->id) {
-                $postCreator->decrement('points', $points);
+            // Award points to post author for receiving comment
+            if (!$comment->parent_id) {
+                PointsService::awardPoints(
+                    $comment->post->creator,
+                    'comment_received',
+                    $comment,
+                    "Received comment on post"
+                );
+            } else {
+                // Award points to parent comment author
+                PointsService::awardPoints(
+                    $comment->parent->user,
+                    'comment_on_comment_received',
+                    $comment,
+                    "Received reply to comment"
+                );
             }
         });
     }

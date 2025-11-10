@@ -45,7 +45,8 @@ class DatabaseSeeder extends Seeder
         User::factory(3)->create();
 
         $this->call([
-            PostSeeder::class
+            PostSeeder::class,
+            PointConfigurationSeeder::class
         ]);
     }
 }
