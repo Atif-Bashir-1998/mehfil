@@ -6,6 +6,7 @@ use App\Enums\AdStatusType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Ad extends Model
 {
@@ -17,6 +18,13 @@ class Ad extends Model
         'starts_at' => 'datetime',
         'ends_at' => 'datetime',
     ];
+
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute()
+    {
+        return url(Storage::url($this->image_path));
+    }
 
     public function user(): BelongsTo
     {

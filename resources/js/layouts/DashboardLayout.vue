@@ -115,6 +115,20 @@
           :active="['post.create', 'post.edit'].includes(route().current())"
           color="primary"
         ></v-list-item>
+        <v-list-item
+          :href="route('ad.index')"
+          prepend-icon="mdi-history"
+          title="My Ads"
+          :active="['ad.index'].includes(route().current())"
+          color="primary"
+        ></v-list-item>
+        <v-list-item
+          :href="route('ad.create')"
+          prepend-icon="mdi-bullhorn"
+          title="Create an ad"
+          :active="['ad.create', 'ad.edit'].includes(route().current())"
+          color="primary"
+        ></v-list-item>
       </v-list>
 
       <template v-slot:append>
@@ -134,7 +148,7 @@
             v-if="activeAds.length > 1"
             height="90"
             hide-delimiters
-            :show-arrows="false"
+            :show-arrows="true"
             cycle
             interval="5000"
           >

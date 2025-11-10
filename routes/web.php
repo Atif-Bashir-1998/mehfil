@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FlagController;
 use App\Http\Controllers\MessageController;
@@ -66,6 +67,7 @@ Route::group([
     Route::delete('/comment/{comment}', [CommentController::class, 'destroy'])->name('comment.destroy');
 
     Route::post('/flag', [FlagController::class, 'store'])->name('flag.store');
+    Route::resource('ad', AdController::class)->except(['show']);
 });
 
 require __DIR__ . '/settings.php';

@@ -1,10 +1,10 @@
 <template>
   <div class="ad-banner" @click="handleAdClick">
-    <v-card variant="flat" class="ad-card" color="grey-darken-2" rounded="md">
+    <v-card variant="flat" class="ad-card" color="primary" rounded="md">
       <v-img
         v-if="ad.image_url"
         :src="ad.image_url"
-        cover
+        contain
         height="90"
         class="position-relative"
       >
@@ -76,7 +76,6 @@ const handleAdClick = () => {
 
 .ad-card {
   height: 100%;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

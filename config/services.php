@@ -43,6 +43,10 @@ return [
     'ocr_api' => [
         'url' => env('OCR_API_URL'),
         'port' => env('OCR_API_PORT')
+    ],
+
+    'ad' => [
+        'cost_per_day' => env('AD_COST_PER_DAY', 30)
     ]
 
 ];
