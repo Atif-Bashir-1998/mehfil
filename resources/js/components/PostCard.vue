@@ -157,6 +157,8 @@ const { post } = defineProps({
   },
 });
 
+const emit = defineEmits(['reaction-updated']);
+
 const reactionMenu = ref(false);
 const menuActivator = ref(null);
 const reactionTypes = usePage().props.reaction_types;
@@ -170,15 +172,65 @@ const userReaction = computed(() => {
   return reactions.find(reaction => reaction.value === userReactionType) || null
 })
 
+
 const handleAddReaction = async (reaction) => {
-  await addReaction(post.id, reaction.value)
-  reactionMenu.value = false;
-}
+  try {
+    await addReaction(post.id, reaction.value);
+
+    const userAlreadyReacted = post.reactions && post.reactions.length > 0;
+    const isChangingReaction = userAlreadyReacted && post.reactions[0].type !== reaction.value;
+
+    // Only increment count if user didn't have any reaction before
+    if (!userAlreadyReacted) {
+      post.reactions_count = (post.reactions_count || 0) + 1;
+    }
+    // If changing reaction, count stays the same
+
+    // Update reactions array
+    if (!post.reactions) post.reactions = [];
+    post.reactions = [{ type: reaction.value, user_id: usePage().props.auth.user.id }];
+
+    // Emit event to parent
+    emit('reaction-updated', {
+      postId: post.id,
+      action: isChangingReaction ? 'changed' : 'added',
+      reactionType: reaction.value,
+      reactionsCount: post.reactions_count,
+      reactions: post.reactions
+    });
+
+  } catch (error) {
+    console.error('Error adding reaction:', error);
+  } finally {
+    reactionMenu.value = false;
+  }
+};
 
 const handleRemoveReaction = async () => {
-  await removeReaction(post.id)
-  reactionMenu.value = false;
-}
+  try {
+    await removeReaction(post.id);
+
+    // Update local state optimistically
+    // post.reactions_count = Math.max(0, (post.reactions_count || 0) - 1);
+    let reactionsCount = Math.max(0, (post.reactions_count || 0) - 1);
+    post.reactions = [];
+
+    console.log({reactionsCount, post})
+
+    // Emit event to parent
+    emit('reaction-updated', {
+      postId: post.id,
+      action: 'removed',
+      reactionsCount,
+      reactions: []
+    });
+
+  } catch (error) {
+    console.error('Error removing reaction:', error);
+  } finally {
+    reactionMenu.value = false;
+  }
+};
 
 const toggleReaction = async (reaction) => {
   if (!post.reactions) {
