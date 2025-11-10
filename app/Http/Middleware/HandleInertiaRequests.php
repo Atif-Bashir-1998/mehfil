@@ -43,25 +43,7 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
-        $active_ads = Ad::where('status', AdStatusType::ACTIVE->value)
-            ->inRandomOrder()
-            ->take(5)
-            ->get()
-            ->map(function ($ad) {
-                return [
-                    'id' => $ad->id,
-                    'title' => $ad->title,
-                    'content' => $ad->content,
-                    'image_url' => $ad->image_url,
-                    'target_url' => $ad->target_url,
-                    'points_spent' => $ad->points_spent,
-                    'impressions' => $ad->impressions,
-                    'clicks' => $ad->clicks,
-                    'status' => $ad->status,
-                    'starts_at' => $ad->starts_at,
-                    'ends_at' => $ad->ends_at,
-                ];
-            });
+        $active_ads = Ad::getActiveAdsWithTracking();
 
         return [
             ...parent::share($request),

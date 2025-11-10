@@ -40,4 +40,15 @@ class Ad extends Model
     {
         $this->increment('impressions');
     }
+
+    public static function getActiveAdsWithTracking()
+    {
+        return self::where('status', AdStatusType::ACTIVE->value)
+            ->inRandomOrder()
+            ->take(5)
+            ->get()
+            ->each(function ($ad) {
+                $ad->incrementImpressions();
+            });
+    }
 }

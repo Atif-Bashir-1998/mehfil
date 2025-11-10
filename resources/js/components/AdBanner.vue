@@ -50,6 +50,8 @@
 </template>
 
 <script setup>
+import { router } from '@inertiajs/vue3';
+
 const props = defineProps({
   ad: {
     type: Object,
@@ -58,6 +60,10 @@ const props = defineProps({
 });
 
 const handleAdClick = () => {
+  let url = route('api.ad.click', {ad: props.ad.id})
+
+  router.visit(url);
+
   window.open(props.ad.target_url, '_blank', 'noopener,noreferrer');
 };
 </script>
