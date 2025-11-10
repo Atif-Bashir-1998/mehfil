@@ -74,7 +74,7 @@ const handleCoverImageChange = (e) => {
             <v-container>
               <v-row class="mb-4">
                 <v-col cols="12" sm="6">
-                  <v-card flat class="bg-grey-lighten-4 pa-4 rounded-lg">
+                  <v-card class="pa-4 rounded-lg">
                     <v-card-title class="text-h6 font-weight-bold pa-0 mb-2">Profile Image</v-card-title>
                     <v-file-input
                       label="Upload Profile Image"
@@ -89,7 +89,7 @@ const handleCoverImageChange = (e) => {
                   </v-card>
                 </v-col>
                 <v-col cols="12" sm="6">
-                  <v-card flat class="bg-grey-lighten-4 pa-4 rounded-lg">
+                  <v-card class="pa-4 rounded-lg">
                     <v-card-title class="text-h6 font-weight-bold pa-0 mb-2">Cover Image</v-card-title>
                     <v-file-input
                       label="Upload Cover Image"

@@ -15,23 +15,29 @@ const props = defineProps({
 
 const scrollEl = useTemplateRef('scrollEl');
 const postList = ref([]);
-const loading = ref(false);
+const loading = ref(true);
 const hasMorePosts = ref(true);
 const currentPage = ref(1);
 
 const loadPosts = async (page = 1) => {
-  if (loading.value) return;
+  console.log("here")
+  // if (loading.value) return;
 
-  loading.value = true;
+  // loading.value = true;
 
   try {
-    const response = await axios.get(`/api/posts?page=${page}`);
-    const posts = response.data;
+    let url = route('recommended.posts', {page})
+    // const response = await axios.get(`/api/posts?page=${page}`);
+    const response = await axios.get(url)
+    console.log({response})
+    const posts = response.data
+
+    // const posts = response.data.data.map(item => item.post);
 
     if (page === 1) {
-      postList.value = posts.data;
+      postList.value = response.data.data.map(item => item.post);
     } else {
-      postList.value = [...postList.value, ...posts.data];
+      postList.value = [...postList.value, ...response.data.data.map(item => item.post)];
     }
 
     currentPage.value = posts.current_page;
@@ -85,13 +91,6 @@ const { reset } = useInfiniteScroll(
   }
 );
 
-const resetPosts = () => {
-  postList.value = [];
-  currentPage.value = 1;
-  hasMorePosts.value = true;
-  reset();
-  loadPosts(1);
-};
 </script>
 
 <template>

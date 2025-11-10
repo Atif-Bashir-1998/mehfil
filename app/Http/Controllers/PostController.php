@@ -6,15 +6,24 @@ use App\Enums\ReactionType;
 use App\Models\Post;
 use App\Rules\HateSpeech;
 use App\Rules\ImageHateSpeech;
+use App\Services\RecommendationService;
 use App\Utils\ImageHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class PostController extends Controller
 {
+    private RecommendationService $recommendationService;
+
+    public function __construct(RecommendationService $recommendationService)
+    {
+        $this->recommendationService = $recommendationService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -46,6 +55,10 @@ class PostController extends Controller
             'images' => 'nullable|array|max:10',
             'images.*' => ['image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048', new ImageHateSpeech],
         ]);
+
+        if (!empty($validated['tags'])) {
+            $this->recommendationService->updateTagsFromPost($validated['tags']);
+        }
 
         $post = $request->user()->posts()->create($validated);
 
@@ -183,4 +196,78 @@ class PostController extends Controller
 
         return response()->json($posts);
     }
+
+    /**
+     * Track user interaction with post
+     */
+    public function trackInteraction(Post $post, Request $request)
+    {
+        $interactionType = $request->input('type'); // 'like', 'comment', 'view'
+        $user = $request->user();
+
+        $this->recommendationService->updateUserInterests($user, $post, $interactionType);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function getRecommendedPosts(Request $request)
+{
+    $user = $request->user();
+    $perPage = $request->input('per_page', 15);
+    $page = $request->input('page', 1);
+
+    $result = $this->recommendationService->getRecommendedPostsPaginated($user, $perPage, $page);
+
+    return response()->json([
+        'data' => $result['data'],
+        'current_page' => $result['current_page'],
+        'per_page' => $result['per_page'],
+        'from' => (($result['current_page'] - 1) * $result['per_page']) + 1,
+        'to' => min($result['current_page'] * $result['per_page'], $result['total']),
+        'total' => $result['total'],
+        'last_page' => $result['last_page'],
+        'path' => $request->url(),
+        'first_page_url' => $request->url() . '?page=1',
+        'last_page_url' => $request->url() . '?page=' . $result['last_page'],
+        'next_page_url' => $result['current_page'] < $result['last_page'] ? $request->url() . '?page=' . ($result['current_page'] + 1) : null,
+        'prev_page_url' => $result['current_page'] > 1 ? $request->url() . '?page=' . ($result['current_page'] - 1) : null,
+    ]);
+}
+
+    // /**
+    //  * Get recommended posts for user
+    //  */
+    // public function getRecommendedPosts(Request $request)
+    // {
+    //     $user = $request->user();
+    //     $perPage = $request->input('per_page', 15);
+    //     $page = $request->input('page', 1);
+
+    //     // Get all recommended posts (you might want to optimize this)
+    //     $allRecommendedPosts = $this->recommendationService->getRecommendedPosts($user, 100); // Get more posts for pagination
+
+    //     // Manual pagination
+    //     $total = count($allRecommendedPosts);
+    //     $currentPage = $page;
+    //     $perPage = $perPage;
+
+    //     $offset = ($currentPage - 1) * $perPage;
+    //     $paginatedPosts = array_slice($allRecommendedPosts, $offset, $perPage);
+
+    //     // Create paginator response similar to Laravel's paginate()
+    //     return response()->json([
+    //         'data' => $paginatedPosts,
+    //         'current_page' => $currentPage,
+    //         'per_page' => $perPage,
+    //         'from' => $offset + 1,
+    //         'to' => $offset + count($paginatedPosts),
+    //         'total' => $total,
+    //         'last_page' => ceil($total / $perPage),
+    //         'path' => $request->url(),
+    //         'first_page_url' => $request->url() . '?page=1',
+    //         'last_page_url' => $request->url() . '?page=' . ceil($total / $perPage),
+    //         'next_page_url' => $currentPage < ceil($total / $perPage) ? $request->url() . '?page=' . ($currentPage + 1) : null,
+    //         'prev_page_url' => $currentPage > 1 ? $request->url() . '?page=' . ($currentPage - 1) : null,
+    //     ]);
+    // }
 }

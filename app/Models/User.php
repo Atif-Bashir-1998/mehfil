@@ -135,4 +135,20 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Ad::class, 'user_id');
     }
+
+     public function interests(): BelongsToMany
+    {
+        return $this->belongsToMany(InterestTag::class, 'user_interests')
+                    ->withPivot('score')
+                    ->withTimestamps();
+    }
+
+    public function getInterestScore($tagName)
+    {
+        $tag = InterestTag::where('name', $tagName)->first();
+        if (!$tag) return 0;
+
+        $interest = $this->interests()->where('interest_tag_id', $tag->id)->first();
+        return $interest ? $interest->pivot->score : 0;
+    }
 }

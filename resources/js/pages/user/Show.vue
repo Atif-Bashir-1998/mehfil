@@ -5,6 +5,7 @@ import DashboardLayout from '@/layouts/DashboardLayout.vue';
 import { router, usePage } from '@inertiajs/vue3'; // ADDED usePage import
 import dayjs from 'dayjs';
 import { ref } from 'vue';
+import axios from 'axios';
 
 const activeTab = ref('posts');
 const dialogVisible = ref(false);
@@ -14,21 +15,21 @@ const { user } = defineProps({
   user: Object,
 });
 
-const sendMessage = () => {
+const sendMessage = async () => {
   const url = route('message.start-conversation', { recipient: user.id });
 
-  router.post(
-    url,
-    {
-      body: messageBody.value,
-    },
-    {
-      onSuccess: () => {
-        dialogVisible.value = false;
-        messageBody.value = '';
-      },
-    },
-  );
+  await axios.post(url, {
+    body: messageBody.value,
+  })
+  .then(() => {
+    // Success
+    dialogVisible.value = false;
+    messageBody.value = '';
+  })
+  .catch((error) => {
+    // Handle error
+    console.error('Failed to send message:', error);
+  });
 };
 </script>
 

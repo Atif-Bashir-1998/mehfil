@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/vue3';
 import { useToast } from 'vue-toastification';
+import axios from 'axios';
 
 export const addReaction = (postId, reactionType) => {
   const toast = useToast();
@@ -15,8 +16,9 @@ export const addReaction = (postId, reactionType) => {
     payload,
     {
       preserveScroll: true,
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success("Reaction added successfully!");
+        await axios.post(`/posts/${postId}/interaction`, { type: 'like' });
       },
       onError: () => {
         toast.error("Could not add reaction");

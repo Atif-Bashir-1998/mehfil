@@ -79,9 +79,8 @@
             </template>
 
             <v-list>
-              <v-list-item title="Setting & Privacy" @click="console.log('i')"></v-list-item>
-              <v-list-item title="Help & Support" @click="console.log('i')"></v-list-item>
-              <v-list-item title="Logout" @click="console.log('i')"></v-list-item>
+              <v-list-item title="Account Settings" @click="visitProfilePage"></v-list-item>
+              <v-list-item title="Logout" @click="handleLogout"></v-list-item>
             </v-list>
           </v-menu>
         </template>
@@ -220,6 +219,13 @@ const visitCommunityGuidelinesPage = () => {
 
 const visitPrivacyPolicyPage = () => {
   const url = route('privacy-policy');
+
+  router.visit(url)
+}
+
+const visitProfilePage = () => {
+  const url = route('profile.edit');
+
   router.visit(url)
 }
 
@@ -233,7 +239,7 @@ onMounted(() => {
   if (user && window.Echo) {
     // Listen for general user notifications
     window.Echo.private(`App.Models.User.${user.id}`).notification((notification) => {
-      snackbarNotifications.value.push(notification.message);
+      // snackbarNotifications.value.push(notification.message);
       console.log({ notification });
       router.reload();
 
@@ -243,11 +249,14 @@ onMounted(() => {
 
     // Listen for new messages
     window.Echo.private(`conversations.${user.id}`).listen('NewMessageSent', (e) => {
-        // Show a snackbar notification for the new message
+      // Show a snackbar notification for the new message
+      console.log("HERE")
+      if (usePage().props.auth.user.id !== e.message.user_id) {
         snackbarNotifications.value.push('You have a new message from ' + e.message.user.name);
+      }
 
-        // Reload the page to update the conversation list on the sidebar
-        router.reload();
+      // Reload the page to update the conversation list on the sidebar
+      router.reload();
     });
   }
 });

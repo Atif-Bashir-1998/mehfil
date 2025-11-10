@@ -5,7 +5,8 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime'
 import Comment from '@/components/Comment.vue';
 import { addComment } from '@/utils/commentUtils';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import axios from 'axios';
 
 dayjs.extend(relativeTime)
 
@@ -47,6 +48,10 @@ const deletePost = (postId) => {
     });
   }
 };
+
+onMounted(async () => {
+  await axios.post(`/posts/${post.id}/interaction`, { type: 'view' });
+})
 </script>
 
 <template>

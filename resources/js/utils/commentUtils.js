@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/vue3';
 import { useToast } from 'vue-toastification';
+import axios from 'axios';
 
 export const addComment = (postId, payload) => {
   const toast = useToast();
@@ -11,8 +12,10 @@ export const addComment = (postId, payload) => {
     payload,
     {
       preserveScroll: true,
-      onSuccess: () => {
+      onSuccess: async() => {
         toast.success("Comment added successfully!");
+
+        await axios.post(`/posts/${postId}/interaction`, { type: 'comment' });
       },
       onError: () => {
         toast.error("Could not add comment");

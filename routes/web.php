@@ -68,6 +68,9 @@ Route::group([
 
     Route::post('/flag', [FlagController::class, 'store'])->name('flag.store');
     Route::resource('ad', AdController::class)->except(['show']);
+
+    Route::post('/posts/{post}/interaction', [PostController::class, 'trackInteraction']);
+    Route::get('/posts/recommended', [PostController::class, 'getRecommendedPosts'])->name('recommended.posts');
 });
 
 require __DIR__ . '/settings.php';
