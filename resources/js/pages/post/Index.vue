@@ -148,7 +148,7 @@ const resetPosts = () => {
 }
 
 .scroll-container::-webkit-scrollbar {
-  width: 6px;
+  width: 3px;
 }
 
 .scroll-container::-webkit-scrollbar-track {

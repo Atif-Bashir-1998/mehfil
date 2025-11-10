@@ -2,9 +2,12 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\AdStatusType;
 use App\Enums\ReactionType;
+use App\Models\Ad;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 
@@ -40,11 +43,32 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
+        $active_ads = Ad::where('status', AdStatusType::ACTIVE->value)
+            ->inRandomOrder()
+            ->take(5)
+            ->get()
+            ->map(function ($ad) {
+                return [
+                    'id' => $ad->id,
+                    'title' => $ad->title,
+                    'content' => $ad->content,
+                    'image_url' => $ad->image_url,
+                    'target_url' => $ad->target_url,
+                    'points_spent' => $ad->points_spent,
+                    'impressions' => $ad->impressions,
+                    'clicks' => $ad->clicks,
+                    'status' => $ad->status,
+                    'starts_at' => $ad->starts_at,
+                    'ends_at' => $ad->ends_at,
+                ];
+            });
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'reaction_types' => ReactionType::all(),
+            'active_ads' => $active_ads,
             'auth' => [
                 'user' => $request->user(),
             ],

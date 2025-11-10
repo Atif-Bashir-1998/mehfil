@@ -130,4 +130,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Flag::class, 'flagged_by');
     }
+
+    public function ads()
+    {
+        return $this->hasMany(Ad::class, 'user_id');
+    }
 }

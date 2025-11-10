@@ -127,7 +127,28 @@
     </v-navigation-drawer>
 
     <v-main>
-      <v-container fluid class="pa-4">
+      <v-container fluid>
+      <div v-if="activeAds.length > 0" class="ma-2 border">
+        <v-container fluid class="pa-0">
+          <v-carousel
+            v-if="activeAds.length > 1"
+            height="90"
+            hide-delimiters
+            :show-arrows="false"
+            cycle
+            interval="5000"
+          >
+            <v-carousel-item
+              v-for="ad in activeAds"
+              :key="ad.id"
+            >
+              <AdBanner :ad="ad" />
+            </v-carousel-item>
+          </v-carousel>
+
+          <ad-banner v-else-if="activeAds.length === 1" :ad="activeAds[0]" />
+        </v-container>
+      </div>
         <slot />
       </v-container>
       <v-snackbar-queue v-model="snackbarNotifications" color="primary" timeout="8000"></v-snackbar-queue>
@@ -144,10 +165,13 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { onMounted, ref } from 'vue';
 import { route } from 'ziggy-js';
 import { markAllAsRead, markAsRead } from '@/utils/notificationUtils';
+import AdBanner from '@/components/AdBanner.vue';
 
 dayjs.extend(relativeTime);
 
 const { user } = usePage().props.auth;
+const activeAds = usePage().props.active_ads
+
 const notifications = usePage().props.notifications;
 
 const latestNotifications = ref(notifications.latest);
