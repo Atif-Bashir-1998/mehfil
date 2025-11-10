@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\PointType;
 use App\Enums\ReactionType;
 use App\Services\PointsService;
-use App\Utils\RewardHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,7 +29,7 @@ class Reaction extends Model
             // Award points to reactor
             PointsService::awardPoints(
                 $reaction->user,
-                'post_reacted',
+                PointType::POST_GOT_REACTION->value,
                 $reaction,
                 "Reacted to post"
             );
@@ -38,7 +38,7 @@ class Reaction extends Model
             if ($reaction->user_id !== $reaction->post->created_by) {
                 PointsService::awardPoints(
                     $reaction->post->creator,
-                    'reaction_received',
+                    PointType::POST_GOT_REACTION->value,
                     $reaction,
                     "Received reaction on post"
                 );

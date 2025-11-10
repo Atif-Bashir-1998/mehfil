@@ -4,13 +4,14 @@ namespace App\Enums;
 
 enum PointType: string
 {
-    case POST_CREATED = 'post-created';
-    case POST_REACTED = 'post-reacted';
-    case POST_COMMENTED = 'post-commented';
-    case COMMENT_REACTED = 'comment-reacted';
-    case COMMENT_CREATED = 'comment-created';
-    case COMMENT_REPLIED = 'comment-replied';
-    case REACTED = 'reacted';
+
+    case CREATED_POST = 'created-post';
+    case CREATED_COMMENT = 'created-comment';
+    case REACTED_POST = 'reacted-post';
+    case REACTED_COMMENT = 'reacted-comment';
+    case POST_GOT_REACTION = 'post-got-reaction';
+    case POST_GOT_COMMENT = 'post-got-comment';
+    case COMMENT_GOT_COMMENT = 'comment-got-comment';
 
     public static function all(): array
     {
@@ -28,26 +29,26 @@ enum PointType: string
     public static function options(): array
     {
         return [
-            self::POST_CREATED->value => 'post-created',
-            self::POST_REACTED->value => 'post-reacted',
-            self::POST_COMMENTED->value => 'post-commented',
-            self::COMMENT_REACTED->value => 'comment-reacted',
-            self::COMMENT_CREATED->value => 'comment-created',
-            self::COMMENT_REPLIED->value => 'comment-replied',
-            self::REACTED->value => 'reacted',
+            self::CREATED_POST->value => 'created-post',
+            self::CREATED_COMMENT->value => 'created-comment',
+            self::REACTED_POST->value => 'reacted-post',
+            self::REACTED_COMMENT->value => 'reacted-comment',
+            self::POST_GOT_REACTION->value => 'post-got-reaction',
+            self::POST_GOT_COMMENT->value => 'post-got-comment',
+            self::COMMENT_GOT_COMMENT->value => 'comment-got-comment',
         ];
     }
 
     public function label(): string
     {
         return match($this) {
-            self::POST_CREATED => 'User publishes a post',
-            self::POST_REACTED => "User's post got a reaction",
-            self::POST_COMMENTED => "User's post got a comment",
-            self::COMMENT_REACTED => "User's comment got a reaction",
-            self::COMMENT_CREATED => "User writes a comment",
-            self::COMMENT_REPLIED => "User's comment got a reply",
-            self::REACTED => "User reacting to a post",
+            self::CREATED_POST => 'User publishes a post',
+            self::CREATED_COMMENT => "User writes a comment",
+            self::REACTED_POST => "User reacts to a post",
+            self::REACTED_COMMENT => "User reacts to a comment",
+            self::POST_GOT_REACTION => "Post got a reaction",
+            self::POST_GOT_COMMENT => 'Post got a comment',
+            self::COMMENT_GOT_COMMENT => 'Comment got a reply',
         };
     }
 }

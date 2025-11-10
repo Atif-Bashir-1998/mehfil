@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\PointType;
 use App\Services\PointsService;
-use App\Utils\RewardHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Auth;
 
 class Comment extends Model
 {
-    /** @use HasFactory<\Database\Factories\CommentFactory> */
     use HasFactory;
 
     use HasFactory;
@@ -31,7 +30,7 @@ class Comment extends Model
             // Award points to comment author
             PointsService::awardPoints(
                 $comment->user,
-                $comment->parent_id ? 'comment_on_comment' : 'comment_created',
+                PointType::CREATED_COMMENT->value,
                 $comment,
                 "Commented on post"
             );
@@ -40,7 +39,7 @@ class Comment extends Model
             if (!$comment->parent_id) {
                 PointsService::awardPoints(
                     $comment->post->creator,
-                    'comment_received',
+                    PointType::POST_GOT_COMMENT->value,
                     $comment,
                     "Received comment on post"
                 );
@@ -48,7 +47,7 @@ class Comment extends Model
                 // Award points to parent comment author
                 PointsService::awardPoints(
                     $comment->parent->user,
-                    'comment_on_comment_received',
+                    PointType::COMMENT_GOT_COMMENT->value,
                     $comment,
                     "Received reply to comment"
                 );

@@ -108,6 +108,9 @@ class UserResource extends Resource
                     ->sortable()
                     ->searchable(),
 
+                TextColumn::make('points')
+                    ->sortable(),
+
                 TextColumn::make('slogan')
                     ->toggleable(isToggledHiddenByDefault: true),
 

@@ -78,7 +78,7 @@ class PostController extends Controller
                     ->with(['user', 'replies.user', 'image']) // This will load all nested replies recursively
                     ->orderBy('created_at', 'desc');
             }
-        ]);
+        ])->loadCount(['reactions', 'all_comments']);
 
         return Inertia::render('post/Show', [
             'post' => $post

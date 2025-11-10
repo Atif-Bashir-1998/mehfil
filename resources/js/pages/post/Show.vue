@@ -133,7 +133,7 @@ const deletePost = (postId) => {
 
       <v-card class="mx-auto pa-6" rounded="lg" elevation="4">
         <v-card-title class="text-h5 font-weight-bold mb-4">
-          Comments ({{ post.comments_count || 0 }})
+          Comments ({{ post.all_comments_count || 0 }})
         </v-card-title>
 
         <v-card-text class="pa-0">
